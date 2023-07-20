@@ -1,166 +1,110 @@
 <template>
 	<div class="app-container" style="padding: 0px; margin-top: -13px;">
 		<div class="filter-container">
-			<el-button class="filter-item" size="mini" type="primary" icon="el-icon-edit" @click="handleCreate">
+			<el-button class="filter-item" size="mini" type="primary" icon="el-icon-edit" @click="">
 				新增指标
 			</el-button>
-			<el-button class="filter-item" size="mini" type="primary" icon="el-icon-edit" @click="handleCreate">
+			<el-button class="filter-item" size="mini" type="primary" icon="el-icon-edit" @click="">
 				批量导入
 			</el-button>
-			<el-button v-waves :loading="downloadLoading" class="filter-item" size="mini" type="primary" icon="el-icon-download"
-				@click="handleDownload">
+			<el-button v-waves :loading="downloadLoading" class="filter-item" size="mini" type="primary"
+				icon="el-icon-download" @click="handleDownload">
 				导出
 			</el-button>
 		</div>
 		<hr style="height: 1px; background-color: #ddd; margin-top: 10px; margin-bottom: 5px; border: none;" />
 		<div class="search-container" style="margin-top: 5px;">
-			<el-select v-model="listQuery.type" placeholder="指标类型" clearable style="width: 150px;" class="search_item">
-				<el-option v-for="item in types" :key="item" :label="item" :value="item" size="mini"/>
+			<el-select v-model="childRequestQuery.indicator_type" placeholder="指标类型" clearable style="width: 150px;"
+				class="search_item">
+				<el-option v-for="item in types" :key="item.key" :label="item.value" :value="item.key" />
 			</el-select>
-			<el-select v-model="listQuery.state" placeholder="指标状态" clearable class="search_item" style="width: 110px; margin-left: 10px;">
-				<el-option v-for="item in states" :key="item" :label="item" :value="item" />
+			<el-select v-model="childRequestQuery.indicator_state" placeholder="指标状态" clearable class="search_item"
+				style="width: 110px; margin-left: 10px;">
+				<el-option v-for="item in states" :key="item.key" :label="item.value" :value="item.key" />
 			</el-select>
-			<el-select v-model="listQuery.creator" placeholder="创建人" clearable class="search_item" style="width: 110px; margin-left: 10px;">
-				<el-option v-for="item in creators" :key="item" :label="item" :value="item" />
+			<el-select v-model="childRequestQuery.creator_id" placeholder="创建人" clearable class="search_item"
+				style="width: 110px; margin-left: 10px;">
+				<el-option v-for="item in creators" :key="item.key" :label="item.value" :value="item.key" />
 			</el-select>
-			<el-link :underline="false" style="margin-left: 10px;">重置<i class="el-icon-setting el-icon--right"></i></el-link>
+			<el-link :underline="false" style="margin-left: 10px;" @click="resetRequestQuery">重置<i
+					class="el-icon-setting el-icon--right"></i></el-link>
+			<el-button v-waves class="search-item" type="primary" icon="el-icon-search" @click="handleSearch"
+				style="width: 80px; margin-left: 10px; padding: 7px 12px; border-radius: 3px;">
+				搜索
+			</el-button>
 		</div>
 
-		<el-table :key="tableKey" v-loading="false" :data="list" border fit highlight-current-row style="width: 100%; margin-top: 10px; border: 1px solid #ddd;"
-			@sort-change="sortChange" :cell-style="tableCellStyle" :header-cell-style="tableHeaderCellStyle">
-			<el-table-column label="ID" prop="id" sortable="custom" align="center" width="80"
-				:class-name="getSortClass('id')">
+		<el-table :key="tableKey" v-loading="false" :data="indicators" border fit highlight-current-row
+			style="width: 100%; margin-top: 10px; border: 1px solid #ddd;" :cell-style="tableCellStyle"
+			:header-cell-style="tableHeaderCellStyle">
+			<el-table-column label="ID" prop="index" align="center" width="60">
 				<template slot-scope="{row}">
-					<span>{{ row.id }}</span>
+					<span>{{ row.index }}</span>
 				</template>
 			</el-table-column>
-			<el-table-column label="Date" width="150px" align="center">
+			<el-table-column label="指标名称" min-width="150" align="center">
 				<template slot-scope="{row}">
-					<span>{{ row.timestamp | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
+					<span>{{ row.indicator_name }}</span>
 				</template>
 			</el-table-column>
-			<el-table-column label="Title" min-width="150px">
+			<el-table-column label="指标标识" min-width="200" align="center">
 				<template slot-scope="{row}">
-					<span class="link-type" @click="handleUpdate(row)">{{ row.title }}</span>
-					<el-tag>{{ row.type | typeFilter }}</el-tag>
+					<span>{{ row.indicator_id }}</span>
 				</template>
 			</el-table-column>
-			<el-table-column label="Author" width="110px" align="center">
+			<el-table-column label="指标类型" prop="indicator_type_name" width="110" align="center">
 				<template slot-scope="{row}">
-					<span>{{ row.author }}</span>
+					<span>{{ row.indicator_type_name }}</span>
 				</template>
 			</el-table-column>
-			<el-table-column v-if="showReviewer" label="Reviewer" width="110px" align="center">
+			<el-table-column label="指标状态" prop="indicator_state_name" width="80" align="center">
 				<template slot-scope="{row}">
-					<span style="color:red;">{{ row.reviewer }}</span>
-				</template>
-			</el-table-column>
-			<el-table-column label="Imp" width="80px">
-				<template slot-scope="{row}">
-					<svg-icon v-for="n in + row.importance" :key="n" icon-class="star" class="meta-item__icon" />
-				</template>
-			</el-table-column>
-			<el-table-column label="Readings" align="center" width="95">
-				<template slot-scope="{row}">
-					<span v-if="row.pageviews" class="link-type" @click="handleFetchPv(row.pageviews)">{{ row.pageviews
-					}}</span>
-					<span v-else>0</span>
-				</template>
-			</el-table-column>
-			<el-table-column label="Status" class-name="status-col" width="100">
-				<template slot-scope="{row}">
-					<el-tag :type="row.status | statusFilter">
-						{{ row.status }}
+					<el-tag :type="row.indicator_state_name | statusFilter" size="small">
+						{{ row.indicator_state_name }}
 					</el-tag>
 				</template>
 			</el-table-column>
-			<el-table-column label="Actions" align="center" width="230" class-name="small-padding fixed-width">
+			<el-table-column label="指标域" prop="domain_name" min-width="110" align="center">
+				<template slot-scope="{row}">
+					<span>{{ row.domain_name }}</span>
+				</template>
+			</el-table-column>
+			<el-table-column label="创建人" prop="creator_name" width="100" align="center">
+				<template slot-scope="{row}">
+					<span>{{ row.creator_name }}</span>
+				</template>
+			</el-table-column>
+			<el-table-column label="指标版本" prop="version" width="90" align="center">
+				<template slot-scope="{row}">
+					<span>{{ row.version }}</span>
+				</template>
+			</el-table-column>
+			<el-table-column label="操作" align="center" min-width="150" class-name="small-padding fixed-width">
 				<template slot-scope="{row,$index}">
-					<el-button type="primary" size="mini" @click="handleUpdate(row)">
-						Edit
+					<el-button size="mini" @click="">
+						编辑
 					</el-button>
-					<el-button v-if="row.status != 'published'" size="mini" type="success"
-						@click="handleModifyStatus(row, 'published')">
-						Publish
+					<el-button v-if="row.indicator_state == 3" size="mini" type="danger"
+						@click="handleOffline(row, $index)">
+						下线
 					</el-button>
-					<el-button v-if="row.status != 'draft'" size="mini" @click="handleModifyStatus(row, 'draft')">
-						Draft
-					</el-button>
-					<el-button v-if="row.status != 'deleted'" size="mini" type="danger" @click="handleDelete(row, $index)">
-						Delete
+					<el-button v-if="row.indicator_state == 4" size="mini" type="primary"
+						@click="handleOnline(row, $index)">
+						发布
 					</el-button>
 				</template>
 			</el-table-column>
 		</el-table>
 
-		<pagination v-show="total > 0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit"
-			@pagination="getList" />
-
-		<el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
-			<el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="70px"
-				style="width: 400px; margin-left:50px;">
-				<el-form-item label="Type" prop="type">
-					<el-select v-model="temp.type" class="filter-item" placeholder="Please select">
-						<el-option v-for="item in calendarTypeOptions" :key="item.key" :label="item.display_name"
-							:value="item.key" />
-					</el-select>
-				</el-form-item>
-				<el-form-item label="Date" prop="timestamp">
-					<el-date-picker v-model="temp.timestamp" type="datetime" placeholder="Please pick a date" />
-				</el-form-item>
-				<el-form-item label="Title" prop="title">
-					<el-input v-model="temp.title" />
-				</el-form-item>
-				<el-form-item label="Status">
-					<el-select v-model="temp.status" class="filter-item" placeholder="Please select">
-						<el-option v-for="item in statusOptions" :key="item" :label="item" :value="item" />
-					</el-select>
-				</el-form-item>
-				<el-form-item label="Imp">
-					<el-rate v-model="temp.importance" :colors="['#99A9BF', '#F7BA2A', '#FF9900']" :max="3"
-						style="margin-top:8px;" />
-				</el-form-item>
-				<el-form-item label="Remark">
-					<el-input v-model="temp.remark" :autosize="{ minRows: 2, maxRows: 4 }" type="textarea"
-						placeholder="Please input" />
-				</el-form-item>
-			</el-form>
-			<div slot="footer" class="dialog-footer">
-				<el-button @click="dialogFormVisible = false">
-					Cancel
-				</el-button>
-				<el-button type="primary" @click="dialogStatus === 'create' ? createData() : updateData()">
-					Confirm
-				</el-button>
-			</div>
-		</el-dialog>
-
-		<el-dialog :visible.sync="dialogPvVisible" title="Reading statistics">
-			<el-table :data="pvData" border fit highlight-current-row style="width: 100%">
-				<el-table-column prop="key" label="Channel" />
-				<el-table-column prop="pv" label="Pv" />
-			</el-table>
-			<span slot="footer" class="dialog-footer">
-				<el-button type="primary" @click="dialogPvVisible = false">Confirm</el-button>
-			</span>
-		</el-dialog>
+		<pagination v-show="total >= 0" :total="total" :page.sync="childRequestQuery.page" :limit.sync="pagesize"
+			@pagination="getIndicators" style="height: 65px;" />
 	</div>
 </template>
   
 <script>
-import { fetchList, fetchPv, createArticle, updateArticle } from '@/api/article'
+import { getIndicatorList, getCreatorList, offlineIndicator, onlineIndicator } from '@/api/dictionary'
 import waves from '@/directive/waves' // waves directive
-import { parseTime } from '@/utils'
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
-
-const calendarTypeOptions = [
-	{ key: 'CN', display_name: 'China' },
-	{ key: 'US', display_name: 'USA' },
-	{ key: 'JP', display_name: 'Japan' },
-	{ key: 'EU', display_name: 'Eurozone' }
-]
-
-// arr to obj, such as { CN : "China", US : "USA" }
 
 export default {
 	name: 'ComplexTable',
@@ -169,9 +113,10 @@ export default {
 	filters: {
 		statusFilter(status) {
 			const statusMap = {
-				published: 'success',
-				draft: 'info',
-				deleted: 'danger'
+				新建: 'info',
+				草稿: '',
+				已发布: 'success',
+				已下线: 'warning'
 			}
 			return statusMap[status]
 		},
@@ -179,169 +124,134 @@ export default {
 			return calendarTypeKeyValue[type]
 		}
 	},
+	props: {
+		query: {
+			type: Object,
+			required: true,
+			default: {
+				page: 1,
+				pagesize: 10,
+				needpage: true,
+				creator_id: undefined,
+				domain_id: undefined,
+				indicator_state: undefined,
+				indicator_type: undefined,
+				allmessage: false,
+				sort: '+id'
+			},
+		},
+		pagesize: {
+			type: Number,
+			default: 10
+		}
+	},
 	data() {
 		return {
 			tableKey: 0,
-			list: null,
+			indicators: null,
 			total: 0,
-			listLoading: true,
-			listQuery: {
-				page: 1,
-				limit: 20,
-				creator: undefined,
-				state: undefined,
-				type: undefined,
-				sort: '+id'
-			},
-			types: ["全部", "主原子指标", "衍生原子指标", "派生指标", "复合指标"],
-			states: ["全部", "新建", "草稿", "已发布", "已下线"],
-			creator: [],
+			childRequestQuery: {},
+			types: [{ key: 0, value: "全部" }, { key: 1, value: "主原子指标" }, { key: 2, value: "衍生原子指标" }, { key: 3, value: "派生指标" }, { key: 4, value: "复合指标" }],
+			states: [{ key: 0, value: "全部" }, { key: 1, value: "新建" }, { key: 2, value: "草稿" }, { key: 3, value: "已发布" }, { key: 4, value: "已下线" }],
+			creators: [],
 			sortOptions: [{ label: 'ID Ascending', key: '+id' }, { label: 'ID Descending', key: '-id' }],
-			statusOptions: ['published', 'draft', 'deleted'],
-			temp: {
-				id: undefined,
-				importance: 1,
-				remark: '',
-				timestamp: new Date(),
-				title: '',
-				type: '',
-				status: 'published'
-			},
-			dialogFormVisible: false,
-			dialogStatus: '',
-			textMap: {
-				update: 'Edit',
-				create: 'Create'
-			},
-			dialogPvVisible: false,
-			pvData: [],
-			rules: {
-				type: [{ required: true, message: 'type is required', trigger: 'change' }],
-				timestamp: [{ type: 'date', required: true, message: 'timestamp is required', trigger: 'change' }],
-				title: [{ required: true, message: 'title is required', trigger: 'blur' }]
-			},
 			downloadLoading: false
 		}
 	},
-	created() {
-		this.getList()
+	watch: {
+		query(newQuery) {
+			this.childRequestQuery = newQuery
+		},
+		'query.domain_id'(newDomainId) {
+			this.childRequestQuery.domain_id = newDomainId
+			this.getIndicators()
+		},
+		childRequestQuery(newQuery) {
+			this.$emit('update', newQuery)
+		}
+	},
+	mounted() {
+		this.childRequestQuery = this.query
+		this.getIndicators();
+		this.getCreators();
 	},
 	methods: {
-		getList() {
-			this.listLoading = true
-			fetchList(this.listQuery).then(response => {
-				this.list = response.data.items
+		getCreators() {
+			getCreatorList().then(response => {
+				this.creators = response.data.creators
+			})
+		},
+		getIndicators() {
+			getIndicatorList(this.childRequestQuery).then(response => {
+				this.indicators = response.data.indicators
 				this.total = response.data.total
-
-				// Just to simulate the time of the request
-				setTimeout(() => {
-					this.listLoading = false
-				}, 1.5 * 1000)
 			})
 		},
-		handleFilter() {
-			this.listQuery.page = 1
-			this.getList()
+		handleSearch() {
+			this.childRequestQuery.page = 1
+			this.getIndicators()
 		},
-		handleModifyStatus(row, status) {
-			this.$message({
-				message: '操作Success',
-				type: 'success'
-			})
-			row.status = status
+		resetRequestQuery() {
+			this.childRequestQuery.page = 1
+			this.childRequestQuery.pagesize = this.pagesize
+			this.childRequestQuery.needpage = true
+			this.childRequestQuery.creator_id = undefined
+			this.childRequestQuery.domain_id = undefined
+			this.childRequestQuery.indicator_state = undefined
+			this.childRequestQuery.indicator_type = undefined
+			this.childRequestQuery.allmessage = false
+			this.childRequestQuery.sort = '+id'
 		},
-		sortChange(data) {
-			const { prop, order } = data
-			if (prop === 'id') {
-				this.sortByID(order)
+		handleOnline(row, index) {
+			var data = {
+				indicator_type: row.indicator_type,
+				indicator_state: 3
 			}
-		},
-		sortByID(order) {
-			if (order === 'ascending') {
-				this.listQuery.sort = '+id'
-			} else {
-				this.listQuery.sort = '-id'
-			}
-			this.handleFilter()
-		},
-		resetTemp() {
-			this.temp = {
-				id: undefined,
-				importance: 1,
-				remark: '',
-				timestamp: new Date(),
-				title: '',
-				status: 'published',
-				type: ''
-			}
-		},
-		handleCreate() {
-			this.resetTemp()
-			this.dialogStatus = 'create'
-			this.dialogFormVisible = true
-			this.$nextTick(() => {
-				this.$refs['dataForm'].clearValidate()
-			})
-		},
-		createData() {
-			this.$refs['dataForm'].validate((valid) => {
-				if (valid) {
-					this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
-					this.temp.author = 'vue-element-admin'
-					createArticle(this.temp).then(() => {
-						this.list.unshift(this.temp)
-						this.dialogFormVisible = false
-						this.$notify({
-							title: 'Success',
-							message: 'Created Successfully',
-							type: 'success',
-							duration: 2000
-						})
+			var params = { sourceId: row.indicator_id }
+			onlineIndicator(data, params).then(response => {
+				this.indicators[index].indicator_state = 3
+				if (response.success) {
+					this.$notify({
+						title: 'Success',
+						message: '指标已发布',
+						type: 'success',
+						duration: 2000
+					})
+				}
+				else {
+					this.$notify({
+						title: 'Error',
+						message: '发布指标失败',
+						type: 'error',
+						duration: 2000
 					})
 				}
 			})
 		},
-		handleUpdate(row) {
-			this.temp = Object.assign({}, row) // copy obj
-			this.temp.timestamp = new Date(this.temp.timestamp)
-			this.dialogStatus = 'update'
-			this.dialogFormVisible = true
-			this.$nextTick(() => {
-				this.$refs['dataForm'].clearValidate()
-			})
-		},
-		updateData() {
-			this.$refs['dataForm'].validate((valid) => {
-				if (valid) {
-					const tempData = Object.assign({}, this.temp)
-					tempData.timestamp = +new Date(tempData.timestamp) // change Thu Nov 30 2017 16:41:05 GMT+0800 (CST) to 1512031311464
-					updateArticle(tempData).then(() => {
-						const index = this.list.findIndex(v => v.id === this.temp.id)
-						this.list.splice(index, 1, this.temp)
-						this.dialogFormVisible = false
-						this.$notify({
-							title: 'Success',
-							message: 'Update Successfully',
-							type: 'success',
-							duration: 2000
-						})
+		handleOffline(row, index) {
+			var data = {
+				indicator_type: row.indicator_type,
+				indicator_state: 4
+			}
+			var params = { sourceId: row.indicator_id }
+			offlineIndicator(data, params).then(response => {
+				this.indicators[index].indicator_state = 4
+				if (response.success) {
+					this.$notify({
+						title: 'Success',
+						message: '指标已下线',
+						type: 'success',
+						duration: 2000
 					})
 				}
-			})
-		},
-		handleDelete(row, index) {
-			this.$notify({
-				title: 'Success',
-				message: 'Delete Successfully',
-				type: 'success',
-				duration: 2000
-			})
-			this.list.splice(index, 1)
-		},
-		handleFetchPv(pv) {
-			fetchPv(pv).then(response => {
-				this.pvData = response.data.pvData
-				this.dialogPvVisible = true
+				else {
+					this.$notify({
+						title: 'Error',
+						message: '下线指标失败',
+						type: 'error',
+						duration: 2000
+					})
+				}
 			})
 		},
 		handleDownload() {
@@ -358,26 +268,13 @@ export default {
 				this.downloadLoading = false
 			})
 		},
-		formatJson(filterVal) {
-			return this.list.map(v => filterVal.map(j => {
-				if (j === 'timestamp') {
-					return parseTime(v[j])
-				} else {
-					return v[j]
-				}
-			}))
-		},
-		getSortClass: function (key) {
-			const sort = this.listQuery.sort
-			return sort === `+${key}` ? 'ascending' : 'descending'
-		},
 		tableCellStyle() {
 			return "border-color: #ddd;"
 		},
 		tableHeaderCellStyle() {
 			return "border-color: #ddd;"
 		}
-	}
+	},
 }
 </script>
 
@@ -385,18 +282,23 @@ export default {
 .el-select .el-input__inner {
 	height: 30px;
 	color: #000;
+
 	&::placeholder {
-      color: black;
-      font-size: 14px;
-    }
+		color: black;
+		font-size: 14px;
+	}
 }
+
 .el-select .el-input .el-select__caret {
-	height: 115%; 
+	height: 115%;
 }
+
 .el-select .el-input .el-select__caret.is-reverse {
 	line-height: 5px;
 }
-.el-table th{
-	padding: 2px;
+
+.el-table td {
+	padding-top: 6px;
+	padding-bottom: 6px;
 }
 </style>

@@ -25,6 +25,28 @@
 import { getAllDomainList, getChildDomainList } from '@/api/dictionary'
 export default {
 	name: "siderbar",
+	props: {
+		query: {
+			type: Object,
+			default: () => {
+				return {
+					page: 1,
+					pagesize: 10,
+					needpage: true,
+					creator_id: undefined,
+					domain_id: undefined,
+					indicator_state: undefined,
+					indicator_type: undefined,
+					allmessage: false,
+					sort: '+id'
+				};
+			},
+		},
+		pagesize: {
+			type: Number,
+			default: 10
+		}
+	},
 	data() {
 		this.checkedId = 0
 		return {
@@ -37,11 +59,25 @@ export default {
 				children: "children",
 				label: "label",
 			},
+			childRequestQuery: {},
 		};
+	},
+	mounted() {
+		this.getData();
+		this.childRequestQuery = this.query;
+	},
+	watch: {
+		query(newQuery) {
+			this.childRequestQuery = newQuery
+		},
+		childRequestQuery(newQuery){
+			this.$emit('update', newQuery)
+		}
 	},
 	methods: {
 		getCheckedKeys() {
-			console.log(this.$refs.tree.getCheckedKeys());
+			if (this.$refs.tree.getCheckedKeys != [])
+				this.childRequestQuery.domain_id = this.$refs.tree.getCheckedKeys()[0]
 			this.$refs.tree.setCheckedKeys([]);
 		},
 		querySearch(queryString, cb) {
@@ -55,12 +91,11 @@ export default {
 			};
 		},
 		handleInputSelect(item){
-			console.log(item.id);
+			this.childRequestQuery.domain_id = item.id
 		},
 		getData() {
 			getAllDomainList().then(response => {
 				this.tree_domains_data = response.data.domains;
-
 				var labels = [];
 				response.data.domains.forEach(function (domain) {
 					if (domain.children) {
@@ -70,7 +105,6 @@ export default {
 					}
 				});
 				this.domains = labels;
-				console.log(this.domains);
 			}).catch(error => {
 				console.log(error);
 			});
@@ -83,10 +117,7 @@ export default {
 			this.button_A = "";
 			this.button_B = "primary";
 		},
-	},
-	mounted() {
-		this.getData();
-	},
+	}
 };
 </script>
 
