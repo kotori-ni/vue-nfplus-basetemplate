@@ -14,7 +14,7 @@
 		<el-main style="height: 100%; padding: 0px" class="main-tree">
 			<el-scrollbar wrap-class="scrollbar">
 				<el-tree :data="tree_domains_data" :props="defaultProps" @node-click="getCheckedKeys" ref="tree"
-					node-key="id" highlight-current check-on-click-node check-strictly prefix-icon="el-icon-search">
+					node-key="value" highlight-current check-on-click-node check-strictly prefix-icon="el-icon-search">
 				</el-tree>
 			</el-scrollbar>
 		</el-main>
@@ -22,7 +22,8 @@
 </template>
 
 <script>
-import { getAllDomainList, getChildDomainList } from '@/api/dictionary'
+import { getAllDomainList } from '@/api/domain.js'
+
 export default {
 	name: "siderbar",
 	props: {
@@ -38,6 +39,7 @@ export default {
 					indicator_state: undefined,
 					indicator_type: undefined,
 					allmessage: false,
+					neddrecord: true,
 					sort: '+id'
 				};
 			},
@@ -63,7 +65,7 @@ export default {
 		};
 	},
 	mounted() {
-		this.getData();
+		this.getData(true, false);
 		this.childRequestQuery = this.query;
 	},
 	watch: {
@@ -91,16 +93,16 @@ export default {
 			};
 		},
 		handleInputSelect(item){
-			this.childRequestQuery.domain_id = item.id
+			this.childRequestQuery.domain_id = item.value
 		},
-		getData() {
-			getAllDomainList().then(response => {
+		getData(needAll, allowParent) {
+			getAllDomainList({needAll: needAll, allowParent: allowParent}).then(response => {
 				this.tree_domains_data = response.data.domains;
 				var labels = [];
 				response.data.domains.forEach(function (domain) {
 					if (domain.children) {
 						domain.children.forEach(function (child) {
-							labels.push({"value":child.label, "id":child.id});
+							labels.push({"value":child.label, "id":child.value});
 						});
 					}
 				});

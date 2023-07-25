@@ -35,6 +35,7 @@ export default {
 				indicator_state: undefined,
 				indicator_type: undefined,
 				allmessage: false,
+				needrecord: true,
 				sort: '+id'
 			},
 		}
@@ -53,6 +54,7 @@ export default {
 				indicator_state: undefined,
 				indicator_type: undefined,
 				allmessage: false,
+				needrecord: true,
 				sort: '+id'
 			}
 			this.fatherRequestQuery.pagesize = this.pagesize

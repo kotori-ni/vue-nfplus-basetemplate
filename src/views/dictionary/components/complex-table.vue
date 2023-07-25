@@ -1,14 +1,14 @@
 <template>
 	<div class="app-container" style="padding: 0px; margin-top: -13px;">
 		<div class="filter-container">
-			<el-button class="filter-item" size="mini" type="primary" icon="el-icon-edit" @click="">
+			<el-button class="filter-item" size="mini" type="primary" icon="el-icon-edit" @click="handleAddIndicator">
 				新增指标
 			</el-button>
 			<el-button class="filter-item" size="mini" type="primary" icon="el-icon-edit" @click="">
 				批量导入
 			</el-button>
 			<el-button v-waves :loading="downloadLoading" class="filter-item" size="mini" type="primary"
-				icon="el-icon-download" @click="handleDownload">
+				icon="el-icon-download" @click="dialogVisible = true">
 				导出
 			</el-button>
 		</div>
@@ -81,7 +81,7 @@
 			</el-table-column>
 			<el-table-column label="操作" align="center" min-width="150" class-name="small-padding fixed-width">
 				<template slot-scope="{row,$index}">
-					<el-button size="mini" @click="">
+					<el-button size="mini" @click="handleEdit(row)">
 						编辑
 					</el-button>
 					<el-button v-if="row.indicator_state == 3" size="mini" type="danger"
@@ -98,11 +98,19 @@
 
 		<pagination v-show="total >= 0" :total="total" :page.sync="childRequestQuery.page" :limit.sync="pagesize"
 			@pagination="getIndicators" style="height: 65px;" />
+
+		<el-dialog title="导出设定" :visible.sync="dialogVisible" width="30%">
+			<span>导出本页的数据指标还是全部数据指标?</span>
+			<span slot="footer" class="dialog-footer">
+				<el-button type="primary" @click="downloadPage">仅本页</el-button>
+				<el-button type="primary" @click="downloadAll">全部</el-button>
+			</span>
+		</el-dialog>
 	</div>
 </template>
   
 <script>
-import { getIndicatorList, getCreatorList, offlineIndicator, onlineIndicator } from '@/api/dictionary'
+import { getIndicatorList, getCreatorList, changeState } from '@/api/dictionary'
 import waves from '@/directive/waves' // waves directive
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 
@@ -137,6 +145,7 @@ export default {
 				indicator_state: undefined,
 				indicator_type: undefined,
 				allmessage: false,
+				needrecord: true,
 				sort: '+id'
 			},
 		},
@@ -148,7 +157,9 @@ export default {
 	data() {
 		return {
 			tableKey: 0,
-			indicators: null,
+			dialogVisible: false,
+			indicators: [],
+			download_indicators: null,
 			total: 0,
 			childRequestQuery: {},
 			types: [{ key: 0, value: "全部" }, { key: 1, value: "主原子指标" }, { key: 2, value: "衍生原子指标" }, { key: 3, value: "派生指标" }, { key: 4, value: "复合指标" }],
@@ -182,6 +193,8 @@ export default {
 			})
 		},
 		getIndicators() {
+			this.childRequestQuery.allmessage = true;
+			this.childRequestQuery.needpage = true;
 			getIndicatorList(this.childRequestQuery).then(response => {
 				this.indicators = response.data.indicators
 				this.total = response.data.total
@@ -200,28 +213,32 @@ export default {
 			this.childRequestQuery.indicator_state = undefined
 			this.childRequestQuery.indicator_type = undefined
 			this.childRequestQuery.allmessage = false
+			this.childRequestQuery.needrecord = true
 			this.childRequestQuery.sort = '+id'
 		},
+		handleAddIndicator() {
+			this.$router.push({ path: '/indicator/dictionary/add' })
+		},
+		handleEdit(indicator) {
+			this.$router.push({ path: '/indicator/dictionary/edit', query: { indicator_id: indicator.indicator_id } })
+		},
 		handleOnline(row, index) {
-			var data = {
-				indicator_type: row.indicator_type,
-				indicator_state: 3
-			}
-			var params = { sourceId: row.indicator_id }
-			onlineIndicator(data, params).then(response => {
-				this.indicators[index].indicator_state = 3
+			var params = { indicator_id: row.indicator_id, newstate: 3}
+			changeState(params).then(response => {
+				this.$set(this.indicators[index], 'indicator_state', 3)
+				this.$set(this.indicators[index], 'indicator_state_name', '已发布')
 				if (response.success) {
 					this.$notify({
-						title: 'Success',
-						message: '指标已发布',
+						title: '操作成功',
+						message: response.message,
 						type: 'success',
 						duration: 2000
 					})
 				}
 				else {
 					this.$notify({
-						title: 'Error',
-						message: '发布指标失败',
+						title: '操作失败',
+						message: response.message,
 						type: 'error',
 						duration: 2000
 					})
@@ -229,44 +246,63 @@ export default {
 			})
 		},
 		handleOffline(row, index) {
-			var data = {
-				indicator_type: row.indicator_type,
-				indicator_state: 4
-			}
-			var params = { sourceId: row.indicator_id }
-			offlineIndicator(data, params).then(response => {
-				this.indicators[index].indicator_state = 4
+			var params = { indicator_id: row.indicator_id, newstate: 4 }
+			changeState(params).then(response => {
+				this.$set(this.indicators[index], 'indicator_state', 4)
+				this.$set(this.indicators[index], 'indicator_state_name', '已下线')
 				if (response.success) {
 					this.$notify({
-						title: 'Success',
-						message: '指标已下线',
+						title: '操作成功',
+						message: response.message,
 						type: 'success',
 						duration: 2000
 					})
 				}
 				else {
 					this.$notify({
-						title: 'Error',
-						message: '下线指标失败',
+						title: '操作失败',
+						message: response.message,
 						type: 'error',
 						duration: 2000
 					})
 				}
 			})
 		},
+		downloadPage() {
+			this.download_indicators = this.indicators
+			this.handleDownload();
+		},
+		downloadAll() {
+			this.childRequestQuery.allmessage = true;
+			this.childRequestQuery.needpage = false;
+			getIndicatorList(this.childRequestQuery).then(response => {
+				this.download_indicators = response.data.indicators
+				this.handleDownload();
+			})
+		},
 		handleDownload() {
+			this.dialogVisible = false
 			this.downloadLoading = true
 			import('@/vendor/Export2Excel').then(excel => {
-				const tHeader = ['timestamp', 'title', 'type', 'importance', 'status']
-				const filterVal = ['timestamp', 'title', 'type', 'importance', 'status']
+				const tHeader = ['指标名称', '指标标识', '指标类型', '指标状态', '指标域', '创建者', '创建时间', '最后修改者', '可分析维度', '安全级别', '关联报表链接', '业务口径', '业务口径负责人', '技术口径', '实时技术口径', '技术口径负责人', '主管部门', '衍生词列表', '修饰词列表', '时间周期', '运算规则']
+				const filterVal = ['indicator_name', 'indicator_id', 'indicator_type', 'indicator_state', 'domain_name', 'creator_name', 'create_time', 'last_operator_name', 'analyzable_dimensions', 'security_level', 'affiliated_report_links', 'business_caliber', 'business_caliber_leader', 'technical_caliber', 'realtime_technical_caliber', 'technical_caliber_leader', 'competent_authoritie', 'derivations', 'modifiers', 'time_cycle_name', 'calculate_rule']
 				const data = this.formatJson(filterVal)
 				excel.export_json_to_excel({
 					header: tHeader,
 					data,
-					filename: 'table-list'
+					filename: 'indicators-list'
 				})
 				this.downloadLoading = false
 			})
+		},
+		formatJson(filterVal) {
+			return this.download_indicators.map(v => filterVal.map(j => {
+				if (j === 'timestamp') {
+					return parseTime(v[j])
+				} else {
+					return v[j]
+				}
+			}))
 		},
 		tableCellStyle() {
 			return "border-color: #ddd;"
@@ -279,7 +315,7 @@ export default {
 </script>
 
 <style>
-.el-select .el-input__inner {
+.search_item .el-input__inner {
 	height: 30px;
 	color: #000;
 
@@ -289,11 +325,11 @@ export default {
 	}
 }
 
-.el-select .el-input .el-select__caret {
+.search_item .el-input .el-select__caret {
 	height: 115%;
 }
 
-.el-select .el-input .el-select__caret.is-reverse {
+.search_item .el-input .el-select__caret.is-reverse {
 	line-height: 5px;
 }
 

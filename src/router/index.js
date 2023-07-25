@@ -66,13 +66,27 @@ export const constantRoutes = [
 				path: 'dictionary',
 				name: '指标字典',
 				component: () => import('@/views/dictionary/index'),
-				meta: { title: '指标字典'}
+				meta: { title: '指标字典'},
 			},
 			{
 				path: 'organization',
 				name: '指标组织',
 				component: () => import('@/views/dictionary/test'),
 				meta: { title: '指标组织'}
+			},
+			{
+				path: 'dictionary/add',
+				name: '新增指标',
+				component: () => import('@/views/dictionary/add/index'),
+				meta: { title: '新增指标'},
+				hidden: true
+			},
+			{
+				path: 'dictionary/edit',
+				name: '编辑指标',
+				component: () => import('@/views/dictionary/edit/index'),
+				meta: { title: '编辑指标'},
+				hidden: true
 			}
 		]
 	},
@@ -89,7 +103,7 @@ export const constantRoutes = [
 		children: [
 			{
 				path: 'modifier',
-				component: () => import('@/views/words/modifier/index'), // Parent router-view
+				component: () => import('@/views/words/modifier/index'),
 				name: '修饰词',
 				meta: { title: '修饰词' },
 			},
