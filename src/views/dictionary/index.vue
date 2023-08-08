@@ -28,15 +28,14 @@ export default {
 			pagesize: 10,
 			fatherRequestQuery: {
 				page: 1,
-				pagesize: undefined,
-				needpage: true,
-				domain_id: undefined,
-				creator_id: undefined,
-				indicator_state: undefined,
-				indicator_type: undefined,
-				allmessage: false,
-				needrecord: true,
-				sort: '+id'
+				pageSize: 10,
+				needPage: true,
+				domainId: undefined,
+				creatorId: undefined,
+				indicatorState: undefined,
+				indicatorType: undefined,
+				keyword: undefined,
+				sortMethod: undefined
 			},
 		}
 	},
@@ -47,15 +46,14 @@ export default {
 		resetRequestQuery() {
 			this.fatherRequestQuery = {
 				page: 1,
-				pagesize: undefined,
-				needpage: true,
-				creator_id: undefined,
-				domain_id: undefined,
-				indicator_state: undefined,
-				indicator_type: undefined,
-				allmessage: false,
-				needrecord: true,
-				sort: '+id'
+				pageSize: 10,
+				needPage: true,
+				creatorId: undefined,
+				domainId: undefined,
+				indicatorState: undefined,
+				indicatorType: undefined,
+				keyword: undefined,
+				sortMethod: undefined
 			}
 			this.fatherRequestQuery.pagesize = this.pagesize
 		},

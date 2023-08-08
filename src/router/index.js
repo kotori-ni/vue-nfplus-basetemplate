@@ -87,14 +87,21 @@ export const constantRoutes = [
 				component: () => import('@/views/dictionary/edit/index'),
 				meta: { title: '编辑指标'},
 				hidden: true
-			}
+			},
+			{
+				path: 'dictionary/detail',
+				name: '详细信息',
+				component: () => import('@/views/dictionary/detail/index'),
+				meta: { title: '详细信息'},
+				hidden: true
+			},
 		]
 	},
 
 	{
 		path: '/words',
 		component: Layout,
-		redirect: '/words/modifier',
+		redirect: '/words/derivation',
 		name: '业务限定',
 		meta: {
 			title: '业务限定',
@@ -102,23 +109,30 @@ export const constantRoutes = [
 		},
 		children: [
 			{
+				path: 'derivation',
+				component: () => import('@/views/words/derivation/index'),
+				name: '衍生词',
+				meta: { title: '衍生词' }
+			},
+			{
 				path: 'modifier',
 				component: () => import('@/views/words/modifier/index'),
 				name: '修饰词',
 				meta: { title: '修饰词' },
 			},
 			{
-				path: 'deriver',
-				component: () => import('@/views/words/deriver/index'),
-				name: '衍生词',
-				meta: { title: '衍生词' }
-			},
-			{
-				path: 'time-cycle',
-				component: () => import('@/views/words/time-cycle/index'),
+				path: 'timecycle',
+				component: () => import('@/views/words/timecycle/index'),
 				name: '时间周期',
 				meta: { title: '时间周期' }
-			}
+			},
+			{
+				path: 'batchupload',
+				component: () => import('@/views/words/components/batchupload'),
+				name: '批量上传',
+				meta: { title: '批量上传' },
+				hidden: true
+			},
 		]
 	},
 

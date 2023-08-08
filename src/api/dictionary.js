@@ -3,7 +3,7 @@ import request from "@/utils/request";
 //获取所有指标创建者
 export function getCreatorList(params) {
 	return request({
-		url: "/indicator/creator_name",
+		url: "/indicator/creators",
 		method: "get",
 		params
 	});
@@ -19,10 +19,36 @@ export function getIndicatorList(data) {
 	});
 }
 
+//获取浏览量最多的五个指标
+export function getViewMaxIndicatorList() {
+	return request({
+		url: "/indicator/viewmax",
+		method: "get"
+	});
+}
+
+//获取用户收藏的指标
+export function getFavourIndicatorList(data) {
+	return request({
+		url: "/indicator/favour",
+		method: "post",
+		data: data,
+	});
+}
+
+//获取用户创建的指标
+export function getCreateIndicatorList(data) {
+	return request({
+		url: "/indicator/creator",
+		method: "post",
+		data: data,
+	});
+}
+
 //获取单个指标的详细信息
 export function getIndicatorDetail(params) {
 	return request({
-		url: "/indicator/detail",
+		url: "/indicator/one",
 		method: "get",
 		params: params
 	});
@@ -41,19 +67,18 @@ export function addIndicator(data) {
 //更新指标状态
 export function changeState(params) {
 	return request({
-		url: "/indicator/changestate",
+		url: "/indicator/update_state",
 		method: "post",
 		params: params
 	});
 }
 
 //更新指标信息
-export function updateIndicator(params, data) {
+export function updateIndicator(data) {
 	return request({
 		url: "/indicator/update",
 		method: "post",
 		headers: { 'Content-Type': 'application/json' },
-		params: params,
 		data: data
 	});
 }

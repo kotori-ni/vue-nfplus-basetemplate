@@ -32,15 +32,14 @@ export default {
 			default: () => {
 				return {
 					page: 1,
-					pagesize: 10,
-					needpage: true,
-					creator_id: undefined,
-					domain_id: undefined,
-					indicator_state: undefined,
-					indicator_type: undefined,
-					allmessage: false,
-					neddrecord: true,
-					sort: '+id'
+					pageSize: 10,
+					needPage: true,
+					creatorId: undefined,
+					domainId: undefined,
+					indicatorState: undefined,
+					indicatorType: undefined,
+					keyword: undefined,
+					sortMethod: undefined
 				};
 			},
 		},
@@ -65,7 +64,7 @@ export default {
 		};
 	},
 	mounted() {
-		this.getData(true, false);
+		this.getDomainData(true, false);
 		this.childRequestQuery = this.query;
 	},
 	watch: {
@@ -78,9 +77,11 @@ export default {
 	},
 	methods: {
 		getCheckedKeys() {
-			if (this.$refs.tree.getCheckedKeys != [])
-				this.childRequestQuery.domain_id = this.$refs.tree.getCheckedKeys()[0]
-			this.$refs.tree.setCheckedKeys([]);
+			console.log(this.$refs.tree.getCheckedKeys().length)
+			if (this.$refs.tree.getCheckedKeys().length > 0){
+				this.childRequestQuery.domainId = this.$refs.tree.getCheckedKeys()[0]
+				this.$refs.tree.setCheckedKeys([]);
+			}
 		},
 		querySearch(queryString, cb) {
 			var domains = this.domains;
@@ -93,9 +94,9 @@ export default {
 			};
 		},
 		handleInputSelect(item){
-			this.childRequestQuery.domain_id = item.value
+			this.childRequestQuery.domainId = item.value
 		},
-		getData(needAll, allowParent) {
+		getDomainData(needAll, allowParent) {
 			getAllDomainList({needAll: needAll, allowParent: allowParent}).then(response => {
 				this.tree_domains_data = response.data.domains;
 				var labels = [];

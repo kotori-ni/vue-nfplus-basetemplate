@@ -1,114 +1,114 @@
 <template>
 	<div>
-		<el-form ref="form" :rules="form_rules" :model="form_data" size="small" label-width="auto" class="add_form">
+		<el-form ref="form" :rules="formRules" :model="formData" size="small" label-width="auto" class="addForm">
 			<el-collapse v-model="tableNames">
-				<el-collapse-item title="基本信息" name="base_information">
-					<el-form-item label="指标类型" prop="indicator_type">
-						<el-radio-group v-model="form_data.indicator_type" @change="handleIndicatorTypeChange">
+				<el-collapse-item title="基本信息" name="baseInformation">
+					<el-form-item label="指标类型" prop="indicatorType">
+						<el-radio-group v-model="formData.indicatorType" @change="handleIndicatorTypeChange">
 							<el-radio label=1>主原子指标</el-radio>
 							<el-radio label=2>衍生原子指标</el-radio>
 							<el-radio label=3>派生指标</el-radio>
 							<el-radio label=4>复合指标</el-radio>
 						</el-radio-group>
 					</el-form-item>
-					<el-form-item v-if="form_data.indicator_type == 2 || form_data.indicator_type == 3" label="依赖的原子指标"
-						prop="dependent_indicator_id">
-						<el-select v-model="form_data.dependent_indicator_id" filterable placeholder="请选择依赖的主原子指标"
+					<el-form-item v-if="formData.indicatorType == 2 || formData.indicatorType == 3" label="依赖的原子指标"
+						prop="dependentIndicatorId">
+						<el-select v-model="formData.dependentIndicatorId" filterable placeholder="请选择依赖的主原子指标"
 							style="width: 100%;">
-							<el-option v-for="item in atomic_indicators" :key="item.indicator_id"
-								:label="item.indicator_name" :value="item.indicator_id">
+							<el-option v-for="item in atomicIndicators" :key="item.indicatorId"
+								:label="item.indicatorName" :value="item.indicatorId">
 							</el-option>
 						</el-select>
 					</el-form-item>
-					<el-form-item v-if="form_data.indicator_type == 2" label="衍生词" prop="derivation_ids">
-						<el-select v-model="form_data.derivation_ids" multiple :multiple-limit="5" filterable
+					<el-form-item v-if="formData.indicatorType == 2" label="衍生词" prop="derivations">
+						<el-select v-model="formData.derivations" multiple :multiple-limit="5" filterable
 							default-first-option placeholder="请选择衍生词" style="width: 100%;" clearable>
-							<el-option v-for="item in derivations" :key="item.derivation_id" :label="item.derivation_name"
-								:value="item.derivation_id">
+							<el-option v-for="item in derivations" :key="item.derivationId" :label="item.derivationName"
+								:value="item.derivationId">
 							</el-option>
 						</el-select>
 					</el-form-item>
-					<el-form-item v-if="form_data.indicator_type == 3" label="时间周期" prop="time_cycles">
-						<el-select v-model="form_data.time_cycle_id" filterable default-first-option placeholder="请选择时间周期"
+					<el-form-item v-if="formData.indicatorType == 3" label="时间周期" prop="timeCycles">
+						<el-select v-model="formData.timeCycleId" filterable default-first-option placeholder="请选择时间周期"
 							style="width: 100%;">
-							<el-option v-for="item in time_cycles" :key="item.time_cycle_id" :label="item.name"
-								:value="item.time_cycle_id">
+							<el-option v-for="item in timeCycles" :key="item.timeCycleId" :label="item.timeCycleName"
+								:value="item.timeCycleId">
 							</el-option>
 						</el-select>
 					</el-form-item>
-					<el-form-item v-if="form_data.indicator_type == 3" label="修饰词" prop="motifiers">
-						<el-cascader v-model="form_data.modifier_ids" clearable :props="{ multiple: true }" filterable
+					<el-form-item v-if="formData.indicatorType == 3" label="修饰词" prop="modifiers">
+						<el-cascader v-model="formData.modifiers" clearable :props="{ multiple: true }" filterable :multiple-limit="5" 
 							:options="modifiers" style="width: 100%;" placeholder="请选择修饰词" :show-all-levels="false">
 						</el-cascader>
 					</el-form-item>
-					<el-form-item label="指标名称" prop="indicator_name">
-						<el-input v-model="form_data.indicator_name" placeholder="1-128个字符" maxlength="128"
+					<el-form-item label="指标名称" prop="indicatorName">
+						<el-input v-model="formData.indicatorName" placeholder="1-128个字符" maxlength="128"
 							show-word-limit />
 					</el-form-item>
-					<el-form-item label="指标标识" prop="indicator_id">
-						<el-input v-model="form_data.indicator_id" placeholder="1-128个字符 不可重复" maxlength="128"
+					<el-form-item label="指标标识" prop="indicatorId">
+						<el-input v-model="formData.indicatorId" placeholder="1-128个字符 不可重复" maxlength="128"
 							show-word-limit />
 					</el-form-item>
-					<el-form-item v-if="form_data.indicator_type == 4" label="依赖指标" prop="composited_ids">
-						<el-select v-model="form_data.composited_ids" multiple :multiple-limit="10" filterable
+					<el-form-item v-if="formData.indicatorType == 4" label="依赖指标" prop="compositeds">
+						<el-select v-model="formData.compositeds" multiple :multiple-limit="10" filterable
 							default-first-option placeholder="请选择参与复合指标运算的指标" style="width: 100%;">
-							<el-option v-for="item in composited_ids" :key="item.indicator_id" :label="item.indicator_name"
-								:value="item.indicator_id">
+							<el-option v-for="item in compositeds" :key="item.indicatorId" :label="item.indicatorName"
+								:value="item.indicatorId">
 							</el-option>
 						</el-select>
 					</el-form-item>
-					<el-form-item v-if="form_data.indicator_type == 4" label="运算规则" prop="calculate_rule">
-						<el-input v-model="form_data.calculate_rule" type="textarea" autosize placeholder="请输入复合指标运算规则"
+					<el-form-item v-if="formData.indicatorType == 4" label="运算规则" prop="calculateRule">
+						<el-input v-model="formData.calculateRule" type="textarea" autosize placeholder="请输入复合指标运算规则"
 							maxlength="512" show-word-limit />
 					</el-form-item>
-					<el-form-item label="指标域" prop="domain_id">
-						<el-cascader v-model="form_data.domain_id" ref="domain" clearable :show-all-levels="false"
+					<el-form-item label="指标域" prop="domainId">
+						<el-cascader v-model="formData.domainId" ref="domain" clearable :show-all-levels="false"
 							filterable :options="domains" style="width: 100%;" placeholder="请选择指标域"
 							@change="handleDomainChange"></el-cascader>
 					</el-form-item>
-					<el-form-item label="可分析维度" prop="analyzable_dimensions">
-						<el-select v-model="analyzable_dimensions" multiple filterable allow-create default-first-option
+					<el-form-item label="可分析维度" prop="analyzableDimensions">
+						<el-select v-model="analyzableDimensions" multiple filterable allow-create default-first-option
 							placeholder="请输入分析维度 不同维度使用回车分隔" style="width: 100%;" clearable>
 							<el-option v-for="item in dimensions" :key="item.id" :label="item.name" :value="item.id">
 							</el-option>
 						</el-select>
 					</el-form-item>
-					<el-form-item label="关联报表链接" prop="affiliated_report_links">
-						<el-select v-model="affiliated_report_links" multiple filterable allow-create default-first-option
+					<el-form-item label="关联报表链接" prop="affiliatedReportLinks">
+						<el-select v-model="affiliatedReportLinks" multiple filterable allow-create default-first-option
 							placeholder="请选择关联报表链接 不同链接使用回车分隔" style="width: 100%;" clearable>
 						</el-select>
 					</el-form-item>
-					<el-form-item label="安全级别" prop="security_level">
-						<el-input-number v-model="form_data.security_level" :min="1" :max="10"></el-input-number>
+					<el-form-item label="安全级别" prop="securityLevel">
+						<el-input-number v-model="formData.securityLevel" :min="1" :max="10"></el-input-number>
 					</el-form-item>
 				</el-collapse-item>
-				<el-collapse-item title="口径定义" name="caliber_definition">
-					<el-form-item label="业务口径" prop="business_caliber">
-						<el-input v-model="form_data.business_caliber" type="textarea" autosize placeholder="请输入业务口径描述"
+				<el-collapse-item title="口径定义" name="caliberDefinition">
+					<el-form-item label="业务口径" prop="businessCaliber">
+						<el-input v-model="formData.businessCaliber" type="textarea" autosize placeholder="请输入业务口径描述"
 							maxlength="255" show-word-limit />
 					</el-form-item>
-					<el-form-item label="业务口径负责人" prop="business_caliber_leader">
-						<el-input v-model="form_data.business_caliber_leader" placeholder="请输入业务口径负责人" maxlength="128"
+					<el-form-item label="业务口径负责人" prop="businessCaliberLeader">
+						<el-input v-model="formData.businessCaliberLeader" placeholder="请输入业务口径负责人" maxlength="128"
 							show-word-limit />
 					</el-form-item>
-					<el-form-item label="技术口径" prop="technical_caliber">
-						<el-input v-model="form_data.technical_caliber" type="textarea" autosize placeholder="请输入技术口径描述"
+					<el-form-item label="技术口径" prop="technicalCaliber">
+						<el-input v-model="formData.technicalCaliber" type="textarea" autosize placeholder="请输入技术口径描述"
 							maxlength="255" show-word-limit />
 					</el-form-item>
-					<el-form-item label="实时技术口径" prop="realtime_technical_caliber">
-						<el-input v-model="form_data.realtime_technical_caliber" type="textarea" autosize
+					<el-form-item label="实时技术口径" prop="realtimeTechnicalCaliber">
+						<el-input v-model="formData.realtimeTechnicalCaliber" type="textarea" autosize
 							placeholder="请输入实时技术口径负责人描述" maxlength="255" show-word-limit />
 					</el-form-item>
-					<el-form-item label="技术口径负责人" prop="technical_caliber_leader">
-						<el-input v-model="form_data.technical_caliber_leader" placeholder="请输入技术口径负责人" maxlength="128"
+					<el-form-item label="技术口径负责人" prop="technicalCaliberLeader">
+						<el-input v-model="formData.technicalCaliberLeader" placeholder="请输入技术口径负责人" maxlength="128"
 							show-word-limit />
 					</el-form-item>
-					<el-form-item label="主管部门" prop="competent_authoritie">
-						<el-input v-model="form_data.competent_authoritie" placeholder="请输入指标主管部门" maxlength="128"
+					<el-form-item label="主管部门" prop="competentAuthoritie">
+						<el-input v-model="formData.competentAuthoritie" placeholder="请输入指标主管部门" maxlength="128"
 							show-word-limit />
 					</el-form-item>
 				</el-collapse-item>
-				<el-collapse-item title="其他信息" name="other_information">
+				<el-collapse-item title="其他信息" name="otherInformation">
 				</el-collapse-item>
 			</el-collapse>
 			<el-form-item style="margin-top: 15px;" size="medium">
@@ -117,6 +117,7 @@
 				<el-button type="info" @click="handleReset">重置</el-button>
 			</el-form-item>
 		</el-form>
+		
 		<el-dialog title="提示" :visible.sync="dialogVisible" width="30%">
 			<span>保存为草稿会将指标状态设为 [草稿] ,您可以在 [我的数据] 页面中继续编辑该指标</span>
 			<span slot="footer" class="dialog-footer">
@@ -130,86 +131,90 @@
 <script>
 import { getIndicatorList, addIndicator } from '@/api/dictionary.js';
 import { getModifierList } from '@/api/modifier.js';
-import { getDerivativeList } from '@/api/deriver.js';
+import { getDerivationList } from '@/api/derivation.js';
 import { getTimeCycleList } from '@/api/timecycle.js';
 import { getAllDomainList } from '@/api/domain.js';
 
 export default {
 	data() {
 		return {
-			tableNames: ['base_information', 'caliber_definition'],
+			tableNames: ['baseInformation', 'caliberDefinition'],
 			domains: [],
 			dimensions: [],
 			derivations: [],
 			dialogVisible: false,
-			atomic_indicators: [],
-			analyzable_dimensions: [],
-			affiliated_report_links: [],
-			composited_ids: [],
+			atomicIndicators: [],
+			analyzableDimensions: [],
+			affiliatedReportLinks: [],
+			compositeds: [],
 			modifiers: [],
-			time_cycles: [],
-			search_query: {
+			timeCycles: [],
+			indicatorSearchQuery: {
+				page: 1,
+				pageSize: 10,
+				needPage: false,
+				indicatorType: 0,
+			},
+			derivationSearchQuery: {
 				page: 1,
 				pagesize: 10,
 				needpage: false,
-				indicator_type: 0,
 				allmessage: false,
-				neddrecord: false,
 			},
-			form_data: {
-				indicator_type: "1",
-				indicator_name: undefined,
-				indicator_id: undefined,
-				domain_id: undefined,
-				analyzable_dimensions: undefined,
-				affiliated_report_links: undefined,
-				security_level: 1,
-				business_caliber: undefined,
-				business_caliber_leader: undefined,
-				technical_caliber: undefined,
-				realtime_technical_caliber: undefined,
-				technical_caliber_leader: undefined,
-				competent_authoritie: undefined,
-				dependent_indicator_id: undefined,
-				derivation_ids: [],
-				time_cycle: undefined,
-				modifier_ids: [],
-				composited_ids: [],
-				calculate_rule: undefined,
+			formData: {
+				indicatorType: "1",
+				indicatorName: undefined,
+				indicatorId: undefined,
+				domainId: undefined,
+				analyzableDimensions: undefined,
+				affiliatedReportLinks: undefined,
+				securityLevel: 1,
+				businessCaliber: undefined,
+				businessCaliberLeader: undefined,
+				technicalCaliber: undefined,
+				realtimeTechnicalCaliber: undefined,
+				technicalCaliberLeader: undefined,
+				competentAuthoritie: undefined,
+				dependentIndicatorId: undefined,
+				derivations: [],
+				timeCycle: undefined,
+				modifiers: [],
+				compositeds: [],
+				calculateRule: undefined,
 			},
-			form_rules: {
-				indicator_type: [
+			formRules: {
+				indicatorType: [
 					{ required: true, message: '请选择指标类型', trigger: 'change' }
 				],
-				dependent_indicator_id: [
+				dependentIndicatorId: [
 					{ required: true, message: '请选择依赖的主原子指标', trigger: 'change' }
 				],
-				derivation_ids: [
+				derivations: [
 					{ required: true, message: '请选择衍生词', trigger: 'change' }
 				],
-				indicator_name: [
+				indicatorName: [
 					{ required: true, message: '请输入指标名称', trigger: 'blur' },
 					{ min: 1, max: 128, message: '长度在 1 到 128 个字符', trigger: 'blur' }
 				],
-				indicator_id: [
+				indicatorId: [
 					{ required: true, message: '请输入指标标识', trigger: 'blur' },
 					{ min: 1, max: 128, message: '长度在 1 到 128 个字符', trigger: 'blur' }
 				],
-				composited_ids: [
+				compositeds: [
 					{ required: true, message: '请选择参与复合指标运算的指标', trigger: 'change' }
 				],
-				calculate_rule: [
+				calculateRule: [
 					{ required: true, message: '请输入复合指标运算规则', trigger: 'blur' },
 					{ min: 1, max: 512, message: '长度在 1 到 512 个字符', trigger: 'blur' }
 				],
-				domain_id: [
+				domainId: [
 					{ required: true, message: '请选择指标域', trigger: 'change' }
 				],
-				business_caliber: [
+				businessCaliber: [
 					{ required: true, message: '请输入业务口径', trigger: 'blur' },
 					{ min: 1, max: 255, message: '长度在 1 到 255 个字符', trigger: 'blur' }
 				],
-				business_caliber_leader: [
+				businessCaliberLeader: [
 					{ required: true, message: '请输入业务口径负责人', trigger: 'blur' },
 					{ min: 1, max: 128, message: '长度在 1 到 128 个字符', trigger: 'blur' }
 				],
@@ -219,39 +224,39 @@ export default {
 	mounted() {
 		this.getDomains(false, true);
 		this.getIndicators();
-		this.getDerivations(true);
+		this.getDerivations();
 		this.getTimeCycles(true);
 		this.getModifiers(false, true);
 	},
 	methods: {
 		onSubmit() {
-			console.log(this.form_data);
+			console.log(this.formData);
 		},
 		resetFromData() {
-			this.form_data = {
-				indicator_type: "1",
-				indicator_name: undefined,
-				indicator_id: undefined,
-				domain_id: undefined,
-				analyzable_dimensions: undefined,
-				affiliated_report_links: undefined,
-				security_level: 1,
-				business_caliber: undefined,
-				business_caliber_leader: undefined,
-				technical_caliber: undefined,
-				realtime_technical_caliber: undefined,
-				technical_caliber_leader: undefined,
-				competent_authoritie: undefined,
-				dependency_indicator_id: undefined,
-				derivation_ids: [],
-				time_cycle_id: undefined,
-				modifier_ids: [],
-				composited_ids: [],
-				calculate_rule: undefined,
+			this.formData = {
+				indicatorType: "1",
+				indicatorName: undefined,
+				indicatorId: undefined,
+				domainId: undefined,
+				analyzableDimensions: undefined,
+				affiliatedReportLinks: undefined,
+				securityLevel: 1,
+				businessCaliber: undefined,
+				businessCaliberLeader: undefined,
+				technicalCaliber: undefined,
+				realtimeTechnicalCaliber: undefined,
+				technicalCaliberLeader: undefined,
+				competentAuthoritie: undefined,
+				dependentIndicatorId: undefined,
+				derivations: [],
+				timeCycleId: undefined,
+				modifiers: [],
+				compositeds: [],
+				calculateRule: undefined,
 			}
-			this.form_data.domain_id = 0;
-			this.analyzable_dimensions = [];
-			this.affiliated_report_links = [];
+			this.formData.domainId = 0;
+			this.analyzableDimensions = [];
+			this.affiliatedReportLinks = [];
 		},
 		getDomains(needAll, allowParent) {
 			getAllDomainList({ needAll: needAll, allowParent: allowParent }).then(response => {
@@ -261,24 +266,24 @@ export default {
 			});
 		},
 		getIndicators() {
-			this.search_query.indicator_type = 0;
-			getIndicatorList(this.search_query).then(response => {
-				this.composited_ids = response.data.indicators.filter(indicator => indicator.indicator_type != 4);
-				this.atomic_indicators = response.data.indicators.filter(indicator => indicator.indicator_type == 1);
+			this.indicatorSearchQuery.indicatorType = 0;
+			getIndicatorList(this.indicatorSearchQuery).then(response => {
+				this.compositeds = response.data.indicators.filter(indicator => indicator.indicatorType != 4);
+				this.atomicIndicators = response.data.indicators.filter(indicator => indicator.indicatorType == 1);
 			}).catch(error => {
 				console.log(error);
 			});
 		},
-		getDerivations(is_simple) {
-			getDerivativeList({ simple: is_simple }).then(response => {
+		getDerivations() {
+			getDerivationList(this.derivationSearchQuery).then(response => {
 				this.derivations = response.data.derivations;
 			}).catch(error => {
 				console.log(error);
 			});
 		},
-		getTimeCycles(is_simple) {
-			getTimeCycleList({ is_simple: is_simple }).then(response => {
-				this.time_cycles = response.data.time_cycles;
+		getTimeCycles() {
+			getTimeCycleList().then(response => {
+				this.timeCycles = response.data.timecycles;
 			}).catch(error => {
 				console.log(error);
 			});
@@ -293,12 +298,16 @@ export default {
 		addIndicator() {
 			this.$refs['form'].validate((valid) => {
 				if (valid) {
-					if (this.analyzable_dimensions != null)
-						this.form_data.analyzable_dimensions = this.analyzable_dimensions.join(',');
-					if (this.affiliated_report_links != null)
-						this.form_data.affiliated_report_links = this.affiliated_report_links.join(',');
+					if (this.analyzableDimensions != null){
+						this.formData.analyzableDimensions = this.analyzableDimensions.join(',');
+						this.analyzableDimensions = [];
+					}
+					if (this.affiliatedReportLinks != null){
+						this.formData.affiliatedReportLinks = this.affiliatedReportLinks.join(',');
+						this.affiliatedReportLinks = [];
+					}
 
-					addIndicator(this.form_data).then(response => {
+					addIndicator(this.formData).then(response => {
 						if (response.success) {
 							this.$notify({
 								title: '操作成功',
@@ -328,32 +337,31 @@ export default {
 		},
 		handleIndicatorTypeChange(val) {
 			this.resetFromData()
-			this.form_data.indicator_type = val;
+			this.formData.indicatorType = val;
 		},
 		handleDomainChange() {
-			this.form_data.domain_id = this.$refs.domain.getCheckedNodes()[0].value;
+			this.formData.domainId = this.$refs.domain.getCheckedNodes()[0].value;
 		},
 		handleSubmit() {
-			this.form_data.indicator_state = 3;
-			console.log(this.form_data)
+			this.formData.indicatorState = 3;
 			this.addIndicator();
 		},
 		handleSave() {
 			this.dialogVisible = false;
-			this.form_data.indicator_state = 2;
+			this.formData.indicatorState = 2;
 			this.addIndicator();
 		},
 		handleReset() {
-			var type = this.form_data.indicator_type;
+			var type = this.formData.indicatorType;
 			this.resetFromData();
-			this.form_data.indicator_type = type;
+			this.formData.indicatorType = type;
 		},
 	}
 }
 </script>
 
 <style>
-.add_form {
+.addForm {
 	padding-left: 40px;
 	padding-right: 60px;
 	padding-top: 20px;

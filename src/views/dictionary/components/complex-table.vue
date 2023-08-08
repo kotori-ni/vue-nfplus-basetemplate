@@ -14,19 +14,19 @@
 		</div>
 		<hr style="height: 1px; background-color: #ddd; margin-top: 10px; margin-bottom: 5px; border: none;" />
 		<div class="search-container" style="margin-top: 5px;">
-			<el-select v-model="childRequestQuery.indicator_type" placeholder="指标类型" clearable style="width: 150px;"
+			<el-select v-model="childRequestQuery.indicatorType" placeholder="指标类型" clearable style="width: 150px;"
 				class="search_item">
 				<el-option v-for="item in types" :key="item.key" :label="item.value" :value="item.key" />
 			</el-select>
-			<el-select v-model="childRequestQuery.indicator_state" placeholder="指标状态" clearable class="search_item"
+			<el-select v-model="childRequestQuery.indicatorState" placeholder="指标状态" clearable class="search_item"
 				style="width: 110px; margin-left: 10px;">
 				<el-option v-for="item in states" :key="item.key" :label="item.value" :value="item.key" />
 			</el-select>
-			<el-select v-model="childRequestQuery.creator_id" placeholder="创建人" clearable class="search_item"
+			<el-select v-model="childRequestQuery.creatorId" placeholder="创建人" clearable class="search_item"
 				style="width: 110px; margin-left: 10px;">
-				<el-option v-for="item in creators" :key="item.key" :label="item.value" :value="item.key" />
+				<el-option v-for="item in creators" :key="item.userId" :label="item.username" :value="item.userId" />
 			</el-select>
-			<el-link :underline="false" style="margin-left: 10px;" @click="resetRequestQuery">重置<i
+			<el-link :underline="false" style="margin-left: 10px;" @click="resetRequestQuery()">重置<i
 					class="el-icon-setting el-icon--right"></i></el-link>
 			<el-button v-waves class="search-item" type="primary" icon="el-icon-search" @click="handleSearch"
 				style="width: 80px; margin-left: 10px; padding: 7px 12px; border-radius: 3px;">
@@ -34,9 +34,9 @@
 			</el-button>
 		</div>
 
-		<el-table :key="tableKey" v-loading="false" :data="indicators" border fit highlight-current-row
+		<el-table :key="tableKey" :data="indicators" border fit highlight-current-row
 			style="width: 100%; margin-top: 10px; border: 1px solid #ddd;" :cell-style="tableCellStyle"
-			:header-cell-style="tableHeaderCellStyle">
+			:header-cell-style="tableHeaderCellStyle" @row-click="showDetails">
 			<el-table-column label="ID" prop="index" align="center" width="60">
 				<template slot-scope="{row}">
 					<span>{{ row.index }}</span>
@@ -44,52 +44,54 @@
 			</el-table-column>
 			<el-table-column label="指标名称" min-width="150" align="center">
 				<template slot-scope="{row}">
-					<span>{{ row.indicator_name }}</span>
+					<span>{{ row.indicatorName }}</span>
 				</template>
 			</el-table-column>
 			<el-table-column label="指标标识" min-width="200" align="center">
 				<template slot-scope="{row}">
-					<span>{{ row.indicator_id }}</span>
+					<span>{{ row.indicatorId }}</span>
 				</template>
 			</el-table-column>
-			<el-table-column label="指标类型" prop="indicator_type_name" width="110" align="center">
+			<el-table-column label="指标类型" prop="indicatorTypeName" width="110" align="center">
 				<template slot-scope="{row}">
-					<span>{{ row.indicator_type_name }}</span>
+					<span>{{ row.indicatorTypeName }}</span>
 				</template>
 			</el-table-column>
-			<el-table-column label="指标状态" prop="indicator_state_name" width="80" align="center">
+			<el-table-column label="指标状态" prop="indicatorStateName" width="80" align="center">
 				<template slot-scope="{row}">
-					<el-tag :type="row.indicator_state_name | statusFilter" size="small">
-						{{ row.indicator_state_name }}
+					<el-tag :type="row.indicatorStateName | statusFilter" size="small">
+						{{ row.indicatorStateName }}
 					</el-tag>
 				</template>
 			</el-table-column>
-			<el-table-column label="指标域" prop="domain_name" min-width="110" align="center">
+			<el-table-column label="指标域" prop="domainName" min-width="110" align="center">
 				<template slot-scope="{row}">
-					<span>{{ row.domain_name }}</span>
+					<span>{{ row.domainName }}</span>
 				</template>
 			</el-table-column>
-			<el-table-column label="创建人" prop="creator_name" width="100" align="center">
+			<el-table-column label="创建人" prop="creatorName" width="100" align="center">
 				<template slot-scope="{row}">
-					<span>{{ row.creator_name }}</span>
+					<span>{{ row.creatorName }}</span>
 				</template>
 			</el-table-column>
-			<el-table-column label="指标版本" prop="version" width="90" align="center">
-				<template slot-scope="{row}">
-					<span>{{ row.version }}</span>
-				</template>
-			</el-table-column>
-			<el-table-column label="操作" align="center" min-width="150" class-name="small-padding fixed-width">
+			<el-table-column label="操作" align="center" width="225" class-name="small-padding fixed-width">
 				<template slot-scope="{row,$index}">
-					<el-button size="mini" @click="handleEdit(row)">
+					<el-button size="mini" @click.native.stop="handleEdit(row)">
 						编辑
 					</el-button>
-					<el-button v-if="row.indicator_state == 3" size="mini" type="danger"
-						@click="handleOffline(row, $index)">
+					<el-button v-if="row.isCollect == false" size="mini" @click.native.stop="handleFavour(row, $index)" type="success">
+						收藏
+					</el-button>
+					<el-button v-if="row.isCollect == true" size="mini" @click.native.stop="handleCancelFavour(row, $index)"
+						type="warning">
+						已收藏
+					</el-button>
+					<el-button v-if="row.indicatorState == 3" size="mini" type="danger"
+						@click.native.stop="handleOffline(row, $index)">
 						下线
 					</el-button>
-					<el-button v-if="row.indicator_state == 4" size="mini" type="primary"
-						@click="handleOnline(row, $index)">
+					<el-button v-if="row.indicatorState != 3" size="mini" type="primary"
+						@click.native.stop="handleOnline(row, $index)">
 						发布
 					</el-button>
 				</template>
@@ -111,6 +113,7 @@
   
 <script>
 import { getIndicatorList, getCreatorList, changeState } from '@/api/dictionary'
+import { addCollection, deleteCollection } from '@/api/user'
 import waves from '@/directive/waves' // waves directive
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 
@@ -121,10 +124,10 @@ export default {
 	filters: {
 		statusFilter(status) {
 			const statusMap = {
-				新建: 'info',
-				草稿: '',
+				新建: '',
+				草稿: 'info',
 				已发布: 'success',
-				已下线: 'warning'
+				已下线: 'warning',
 			}
 			return statusMap[status]
 		},
@@ -138,15 +141,14 @@ export default {
 			required: true,
 			default: {
 				page: 1,
-				pagesize: 10,
-				needpage: true,
-				creator_id: undefined,
-				domain_id: undefined,
-				indicator_state: undefined,
-				indicator_type: undefined,
-				allmessage: false,
-				needrecord: true,
-				sort: '+id'
+				pageSize: 10,
+				needPage: true,
+				creatorId: undefined,
+				domainId: undefined,
+				indicatorState: undefined,
+				indicatorType: undefined,
+				keyword: undefined,
+				sortMethod: undefined
 			},
 		},
 		pagesize: {
@@ -159,13 +161,12 @@ export default {
 			tableKey: 0,
 			dialogVisible: false,
 			indicators: [],
-			download_indicators: null,
+			downloadIndicators: null,
 			total: 0,
 			childRequestQuery: {},
 			types: [{ key: 0, value: "全部" }, { key: 1, value: "主原子指标" }, { key: 2, value: "衍生原子指标" }, { key: 3, value: "派生指标" }, { key: 4, value: "复合指标" }],
 			states: [{ key: 0, value: "全部" }, { key: 1, value: "新建" }, { key: 2, value: "草稿" }, { key: 3, value: "已发布" }, { key: 4, value: "已下线" }],
 			creators: [],
-			sortOptions: [{ label: 'ID Ascending', key: '+id' }, { label: 'ID Descending', key: '-id' }],
 			downloadLoading: false
 		}
 	},
@@ -173,8 +174,8 @@ export default {
 		query(newQuery) {
 			this.childRequestQuery = newQuery
 		},
-		'query.domain_id'(newDomainId) {
-			this.childRequestQuery.domain_id = newDomainId
+		'query.domainId'(newDomainId) {
+			this.childRequestQuery.domainId = newDomainId
 			this.getIndicators()
 		},
 		childRequestQuery(newQuery) {
@@ -183,6 +184,10 @@ export default {
 	},
 	mounted() {
 		this.childRequestQuery = this.query
+		if (this.$route.params != null){
+			this.childRequestQuery.sortMethod = "all"
+			this.childRequestQuery.keyword = this.$route.params.searchKeyword
+		}
 		this.getIndicators();
 		this.getCreators();
 	},
@@ -193,12 +198,14 @@ export default {
 			})
 		},
 		getIndicators() {
-			this.childRequestQuery.allmessage = true;
-			this.childRequestQuery.needpage = true;
+			this.childRequestQuery.needPage = true;
 			getIndicatorList(this.childRequestQuery).then(response => {
-				this.indicators = response.data.indicators
-				this.total = response.data.total
+				this.indicators = response.data.indicators.records
+				this.total = response.data.indicators.total
 			})
+		},
+		showDetails(row) {
+			this.$router.push({ path: '/indicator/dictionary/detail', query: { indicatorId: row.indicatorId } })
 		},
 		handleSearch() {
 			this.childRequestQuery.page = 1
@@ -206,28 +213,28 @@ export default {
 		},
 		resetRequestQuery() {
 			this.childRequestQuery.page = 1
-			this.childRequestQuery.pagesize = this.pagesize
-			this.childRequestQuery.needpage = true
-			this.childRequestQuery.creator_id = undefined
-			this.childRequestQuery.domain_id = undefined
-			this.childRequestQuery.indicator_state = undefined
-			this.childRequestQuery.indicator_type = undefined
-			this.childRequestQuery.allmessage = false
-			this.childRequestQuery.needrecord = true
-			this.childRequestQuery.sort = '+id'
+			this.childRequestQuery.pageSize = 10
+			this.childRequestQuery.needPage = true
+			this.childRequestQuery.creatorId = undefined
+			this.childRequestQuery.domainId = undefined
+			this.childRequestQuery.indicatorState = undefined
+			this.childRequestQuery.indicatorType = undefined
+			this.childRequestQuery.keyword = undefined
+			this.childRequestQuery.sortMethod = undefined
+			this.getIndicators()
 		},
 		handleAddIndicator() {
 			this.$router.push({ path: '/indicator/dictionary/add' })
 		},
 		handleEdit(indicator) {
-			this.$router.push({ path: '/indicator/dictionary/edit', query: { indicator_id: indicator.indicator_id } })
+			this.$router.push({ path: '/indicator/dictionary/edit', query: { indicatorId: indicator.indicatorId } })
 		},
 		handleOnline(row, index) {
-			var params = { indicator_id: row.indicator_id, newstate: 3}
+			var params = { newState: 3, indicatorId: row.indicatorId }
 			changeState(params).then(response => {
-				this.$set(this.indicators[index], 'indicator_state', 3)
-				this.$set(this.indicators[index], 'indicator_state_name', '已发布')
 				if (response.success) {
+					this.$set(this.indicators[index], 'indicatorState', 3)
+					this.$set(this.indicators[index], 'indicatorStateName', '已发布')
 					this.$notify({
 						title: '操作成功',
 						message: response.message,
@@ -246,11 +253,53 @@ export default {
 			})
 		},
 		handleOffline(row, index) {
-			var params = { indicator_id: row.indicator_id, newstate: 4 }
+			var params = { newState: 4, indicatorId: row.indicatorId,  }
 			changeState(params).then(response => {
-				this.$set(this.indicators[index], 'indicator_state', 4)
-				this.$set(this.indicators[index], 'indicator_state_name', '已下线')
 				if (response.success) {
+					this.$set(this.indicators[index], 'indicatorState', 4)
+					this.$set(this.indicators[index], 'indicatorStateName', '已下线')
+					this.$notify({
+						title: '操作成功',
+						message: response.message,
+						type: 'success',
+						duration: 2000
+					})
+				}
+				else {
+					this.$notify({
+						title: '操作失败',
+						message: response.message,
+						type: 'error',
+						duration: 2000
+					})
+				}
+			})
+		},
+		handleFavour(row, index) {
+			addCollection({ indicatorId: row.indicatorId }).then(response => {
+				if (response.success) {
+					this.$set(this.indicators[index], 'isCollect', true)
+					this.$notify({
+						title: '操作成功',
+						message: response.message,
+						type: 'success',
+						duration: 2000
+					})
+				}
+				else {
+					this.$notify({
+						title: '操作失败',
+						message: response.message,
+						type: 'error',
+						duration: 2000
+					})
+				}
+			})
+		},
+		handleCancelFavour(row, index) {
+			deleteCollection({ indicatorId: row.indicatorId }).then(response => {
+				if (response.success) {
+					this.$set(this.indicators[index], 'isCollect', false)
 					this.$notify({
 						title: '操作成功',
 						message: response.message,
@@ -269,23 +318,41 @@ export default {
 			})
 		},
 		downloadPage() {
-			this.download_indicators = this.indicators
-			this.handleDownload();
-		},
-		downloadAll() {
-			this.childRequestQuery.allmessage = true;
-			this.childRequestQuery.needpage = false;
+			this.childRequestQuery.needPage = true;
 			getIndicatorList(this.childRequestQuery).then(response => {
-				this.download_indicators = response.data.indicators
-				this.handleDownload();
+				this.downloadIndicators = response.data.indicators.records.map((indicator) => {
+					if (indicator.compositedNames != null)
+						indicator.compositedNames = indicator.compositedNames.join(',');
+					if (indicator.derivationNames != null)
+						indicator.derivationnames = indicator.derivationNames.join(',');
+					if (indicator.modifierNames != null)
+						indicator.modifierNames = indicator.modifierNames.join(',');
+					return indicator;
+				})
+				this.download();
 			})
 		},
-		handleDownload() {
+		downloadAll() {
+			this.childRequestQuery.needPage = false;
+			getIndicatorList(this.childRequestQuery).then(response => {
+				this.downloadIndicators = response.data.indicators.map((indicator) => {
+					if (indicator.compositedNames != null)
+						indicator.compositedNames = indicator.compositedNames.join(',');
+					if (indicator.derivationNames != null)
+						indicator.derivationnames = indicator.derivationNames.join(',');
+					if (indicator.modifierNames != null)
+						indicator.modifierNames = indicator.modifierNames.join(',');
+					return indicator;
+				})
+				this.download();
+			})
+		},
+		download() {
 			this.dialogVisible = false
 			this.downloadLoading = true
 			import('@/vendor/Export2Excel').then(excel => {
-				const tHeader = ['指标名称', '指标标识', '指标类型', '指标状态', '指标域', '创建者', '创建时间', '最后修改者', '可分析维度', '安全级别', '关联报表链接', '业务口径', '业务口径负责人', '技术口径', '实时技术口径', '技术口径负责人', '主管部门', '衍生词列表', '修饰词列表', '时间周期', '运算规则']
-				const filterVal = ['indicator_name', 'indicator_id', 'indicator_type', 'indicator_state', 'domain_name', 'creator_name', 'create_time', 'last_operator_name', 'analyzable_dimensions', 'security_level', 'affiliated_report_links', 'business_caliber', 'business_caliber_leader', 'technical_caliber', 'realtime_technical_caliber', 'technical_caliber_leader', 'competent_authoritie', 'derivations', 'modifiers', 'time_cycle_name', 'calculate_rule']
+				const tHeader = ['指标名称', '指标标识', '指标类型', '指标状态', '依赖的主原子指标', '指标域', '创建者', '创建时间', '最后修改者', '可分析维度', '安全级别', '关联报表链接', '业务口径', '业务口径负责人', '技术口径', '实时技术口径', '技术口径负责人', '主管部门', '衍生词列表', '修饰词列表', '其他指标列表', '时间周期', '运算规则']
+				const filterVal = ['indicatorName', 'indicatorId', 'indicatorType', 'indicatorState', 'dependentIndicatorName', 'domainName', 'creatorName', 'createTime', 'lastOperatorName', 'analyzableDimensions', 'securityLevel', 'affiliatedReportLinks', 'businessCaliber', 'businessCaliberLeader', 'technicalCaliber', 'realtimeTechnicalCaliber', 'technicalCaliberLeader', 'competentAuthoritie', 'derivationNames', 'modifierNames', 'compositedNames', 'timeCycleName', 'calculateRule']
 				const data = this.formatJson(filterVal)
 				excel.export_json_to_excel({
 					header: tHeader,
@@ -296,7 +363,7 @@ export default {
 			})
 		},
 		formatJson(filterVal) {
-			return this.download_indicators.map(v => filterVal.map(j => {
+			return this.downloadIndicators.map(v => filterVal.map(j => {
 				if (j === 'timestamp') {
 					return parseTime(v[j])
 				} else {
@@ -314,9 +381,10 @@ export default {
 }
 </script>
 
-<style>
-.search_item .el-input__inner {
-	height: 30px;
+<style scoped>
+
+::v-deep .search_item .el-input__inner {
+	height: 32px;
 	color: #000;
 
 	&::placeholder {
@@ -325,16 +393,19 @@ export default {
 	}
 }
 
-.search_item .el-input .el-select__caret {
+
+::v-deep .search_item .el-input__icon {
 	height: 115%;
 }
 
-.search_item .el-input .el-select__caret.is-reverse {
+
+::v-deep .search_item .el-input .el-select_Caret.is-reverse {
 	line-height: 5px;
 }
 
-.el-table td {
-	padding-top: 6px;
-	padding-bottom: 6px;
+
+::v-deep .el-table td {
+	padding-top: 8px;
+	padding-bottom: 8px;
 }
 </style>
