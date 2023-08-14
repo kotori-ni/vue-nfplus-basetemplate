@@ -1,3 +1,12 @@
+<!--
+ * @Description: 展示所有指标的表格组件 
+ * @Author: wch
+ * @email: 1301457114@qq.com
+ * @Date: 2023-07-16 16:31:16
+ * @LastEditors: wch
+ * @LastEditTime: 2023-08-14 14:46:36
+-->
+
 <template>
 	<div class="app-container" style="padding: 0px; margin-top: -13px;">
 		<div class="filter-container">
@@ -79,7 +88,8 @@
 					<el-button size="mini" @click.native.stop="handleEdit(row)">
 						编辑
 					</el-button>
-					<el-button v-if="row.isCollect == false" size="mini" @click.native.stop="handleFavour(row, $index)" type="success">
+					<el-button v-if="row.isCollect == false" size="mini" @click.native.stop="handleFavour(row, $index)"
+						type="success">
 						收藏
 					</el-button>
 					<el-button v-if="row.isCollect == true" size="mini" @click.native.stop="handleCancelFavour(row, $index)"
@@ -184,7 +194,7 @@ export default {
 	},
 	mounted() {
 		this.childRequestQuery = this.query
-		if (this.$route.params != null){
+		if (this.$route.params != null) {
 			this.childRequestQuery.sortMethod = "all"
 			this.childRequestQuery.keyword = this.$route.params.searchKeyword
 		}
@@ -192,11 +202,21 @@ export default {
 		this.getCreators();
 	},
 	methods: {
+		/**
+		 * @description: 获取指标创建者列表
+		 * @return {*}
+		 * @author: wch
+		 */
 		getCreators() {
 			getCreatorList().then(response => {
 				this.creators = response.data.creators
 			})
 		},
+		/**
+		 * @description: 根据查询条件获取指标列表
+		 * @return {*}
+		 * @author: wch
+		 */
 		getIndicators() {
 			this.childRequestQuery.needPage = true;
 			getIndicatorList(this.childRequestQuery).then(response => {
@@ -229,6 +249,13 @@ export default {
 		handleEdit(indicator) {
 			this.$router.push({ path: '/indicator/dictionary/edit', query: { indicatorId: indicator.indicatorId } })
 		},
+		/**
+		 * @description: 将指标状态设为已发布
+		 * @param {*} row
+		 * @param {*} index
+		 * @return {*}
+		 * @author: wch
+		 */
 		handleOnline(row, index) {
 			var params = { newState: 3, indicatorId: row.indicatorId }
 			changeState(params).then(response => {
@@ -252,8 +279,15 @@ export default {
 				}
 			})
 		},
+		/**
+		 * @description: 将指标状态设为已下线
+		 * @param {*} row
+		 * @param {*} index
+		 * @return {*}
+		 * @author: wch
+		 */
 		handleOffline(row, index) {
-			var params = { newState: 4, indicatorId: row.indicatorId,  }
+			var params = { newState: 4, indicatorId: row.indicatorId, }
 			changeState(params).then(response => {
 				if (response.success) {
 					this.$set(this.indicators[index], 'indicatorState', 4)
@@ -275,6 +309,13 @@ export default {
 				}
 			})
 		},
+		/**
+		 * @description: 收藏指标
+		 * @param {*} row
+		 * @param {*} index
+		 * @return {*}
+		 * @author: wch
+		 */
 		handleFavour(row, index) {
 			addCollection({ indicatorId: row.indicatorId }).then(response => {
 				if (response.success) {
@@ -296,6 +337,12 @@ export default {
 				}
 			})
 		},
+		/**
+		 * @description: 取消收藏指标
+		 * @param {*} row
+		 * @param {*} index
+		 * @return {*}
+		 */
 		handleCancelFavour(row, index) {
 			deleteCollection({ indicatorId: row.indicatorId }).then(response => {
 				if (response.success) {
@@ -317,6 +364,11 @@ export default {
 				}
 			})
 		},
+		/**
+		 * @description: 将表格本页的指标信息导出为excel文件
+		 * @return {*}
+		 * @author: wch
+		 */
 		downloadPage() {
 			this.childRequestQuery.needPage = true;
 			getIndicatorList(this.childRequestQuery).then(response => {
@@ -332,6 +384,10 @@ export default {
 				this.download();
 			})
 		},
+		/**
+		 * @description: 将表格所有的指标信息导出为excel文件
+		 * @return {*}
+		 */
 		downloadAll() {
 			this.childRequestQuery.needPage = false;
 			getIndicatorList(this.childRequestQuery).then(response => {
@@ -382,7 +438,6 @@ export default {
 </script>
 
 <style scoped>
-
 ::v-deep .search_item .el-input__inner {
 	height: 32px;
 	color: #000;

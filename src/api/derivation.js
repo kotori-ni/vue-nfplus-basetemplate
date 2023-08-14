@@ -1,6 +1,20 @@
+/*
+ * @Description: 衍生词相关的接口
+ * @Author: wch
+ * @email: 1301457114@qq.com
+ * @Date: 2023-07-23 17:49:29
+ * @LastEditors: wch
+ * @LastEditTime: 2023-08-14 14:13:06
+ */
+
 import request from "@/utils/request";
 
-//获取所有衍生词
+/**
+ * @description: 获取所有衍生词
+ * @param {data}
+ * @return {request}
+ * @author: wch
+ */
 export function getDerivationList(data){
 	return request({
 		url: "/derivation/all",
@@ -9,7 +23,13 @@ export function getDerivationList(data){
 	});
 }
 
-// 分页查询衍生词
+
+/**
+ * @description: 按条件获取衍生词
+ * @param {data}
+ * @return {request}
+ * @author: wch
+ */
 export function findDerivation(data){
 	return request({
 		url: "/derivation/find",
@@ -18,6 +38,26 @@ export function findDerivation(data){
 	});
 }
 
+/**
+ * @description: 获取引用了该衍生词的指标
+ * @param {parmas} 
+ * @return {request}
+ * @author: wch
+ */
+export function findQuoteIndicators(parmas){
+	return request({
+		url: "/derivation/indicators",
+		method: "get",
+		params: parmas
+	});
+}
+
+/**
+ * @description: 添加衍生词
+ * @param {data}
+ * @return {request}
+ * @author: wch
+ */
 // 添加衍生词
 export function addDerivation(data){
 	return request({
@@ -27,7 +67,12 @@ export function addDerivation(data){
 	});
 }
 
-//批量导入衍生词
+/**
+ * @description: 批量添加衍生词
+ * @param {data}
+ * @return {request} 
+ * @author: wch
+ */
 export function addDerivationList(data){
 	return request({
 		url: "/derivation/batch_add",
@@ -36,6 +81,12 @@ export function addDerivationList(data){
 	});
 }
 
+/**
+ * @description: 修改衍生词
+ * @param {data}
+ * @return {request}
+ * @author: wch
+ */
 // 修改衍生词
 export function updateDerivation(data){
 	return request({

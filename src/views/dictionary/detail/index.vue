@@ -1,3 +1,12 @@
+<!--
+ * @Description: 指标管理->详细信息
+ * @Author: wch
+ * @email: 1301457114@qq.com
+ * @Date: 2023-08-02 21:06:36
+ * @LastEditors: wch
+ * @LastEditTime: 2023-08-14 15:04:31
+-->
+
 <template>
     <div style="margin-left: 35px; margin-right: 35px;">
         <div class="indicator_header" style="height: 100px; display: flex; flex-direction: row;">
@@ -6,23 +15,31 @@
                 <div class="indicator_type">{{ indicator.indicatorTypeName }}</div>
             </div>
             <div class="indicator_name" style="margin-left: 20px; margin-top: 20px;">
-                <div style="font-weight: bold; font-size: 14px;">{{ indicator.indicatorName }} ({{ indicator.indicatorId }})</div>
+                <div style="font-weight: bold; font-size: 14px;">{{ indicator.indicatorName }} ({{ indicator.indicatorId }})
+                </div>
                 <div style="margin-top: 10px; font-size: 12px;">业务口径: {{ indicator.businessCaliber }}</div>
                 <div style="margin-top: 10px; display: flex; flex-direction: row; margin-top: inherit;">
-                    <el-tag class="indicator_version" effect="plain" type="info" style="width: 35px; color: #222;">最新</el-tag>
-                    <el-tag class="indicator_version" effect="plain" type="primary" style="width: 50px;">{{ indicator.version.versionNum }}</el-tag>
-                    <el-tag class="indicator_version" effect="dark" :type="indicator.indicatorState | statusFilter" style="margin-left: 25px; width: 50px;">{{ indicator.indicatorStateName }}</el-tag>
+                    <el-tag class="indicator_version" effect="plain" type="info"
+                        style="width: 35px; color: #222;">最新</el-tag>
+                    <el-tag class="indicator_version" effect="plain" type="primary" style="width: 50px;">{{
+                        indicator.version.versionNum }}</el-tag>
+                    <el-tag class="indicator_version" effect="dark" :type="indicator.indicatorState | statusFilter"
+                        style="margin-left: 25px; width: 50px;">{{ indicator.indicatorStateName }}</el-tag>
                 </div>
             </div>
             <div class="indicator_operation">
                 <div style="display: flex; flex-direction: row;">
-                    <el-tag class="indicator_version" effect="plain" type="info" style="margin-right: 10px;">查看次数 {{ indicator.viewsNum }}</el-tag>
-                    <el-tag class="indicator_version" effect="plain" type="info" style="margin-right: 10px;">收藏次数 {{ indicator.favoursNum }}</el-tag>
-                    <el-tag class="indicator_version" effect="plain" type="info" >订阅次数 0</el-tag>
+                    <el-tag class="indicator_version" effect="plain" type="info" style="margin-right: 10px;">查看次数 {{
+                        indicator.viewsNum }}</el-tag>
+                    <el-tag class="indicator_version" effect="plain" type="info" style="margin-right: 10px;">收藏次数 {{
+                        indicator.favoursNum }}</el-tag>
+                    <el-tag class="indicator_version" effect="plain" type="info">订阅次数 0</el-tag>
                 </div>
                 <div style="margin-top: auto;">
-                    <el-button v-if="indicator.isCollect == false" icon="el-icon-star-off" type="primary" size="mini" @click="handleFavour()" plain>添加收藏</el-button>
-                    <el-button v-if="indicator.isCollect == true" icon="el-icon-star-on" type="warning" size="mini" @click="handleCancleFavour()" plain>已收藏</el-button>
+                    <el-button v-if="indicator.isCollect == false" icon="el-icon-star-off" type="primary" size="mini"
+                        @click="handleFavour()" plain>添加收藏</el-button>
+                    <el-button v-if="indicator.isCollect == true" icon="el-icon-star-on" type="warning" size="mini"
+                        @click="handleCancleFavour()" plain>已收藏</el-button>
                     <el-button type="primary" icon="el-icon-edit" size="mini" @click="handleEdit()">编辑</el-button>
                 </div>
             </div>
@@ -83,7 +100,8 @@
             </el-tab-pane>
             <el-tab-pane label="版本历史" name="historyVersion">
                 <el-timeline>
-                    <el-timeline-item v-for="version of versions" :timestamp="version.operateTime[0] + ' v' + version.versionNum " placement="top">
+                    <el-timeline-item v-for="version of versions"
+                        :timestamp="version.operateTime[0] + ' v' + version.versionNum" placement="top">
                         <el-card style="width: 550px;">
                             <pre class="custom-pre">{{ version.operation }}</pre>
                             <p>{{ version.operatorName }} 提交于 {{ version.operateTime[0] + " " + version.operateTime[1] }}
@@ -92,35 +110,80 @@
                     </el-timeline-item>
                 </el-timeline>
             </el-tab-pane>
-            <el-tab-pane label="指标血缘" name="third">指标血缘</el-tab-pane>
+            <el-tab-pane label="指标血缘" name="third">
+                <svgTable :indicatorId="indicatorId"></svgTable>
+            </el-tab-pane>
         </el-tabs>
     </div>
 </template>
 
 <script>
+import svgTable from './components/svg-table.vue';
 import { getIndicatorDetail } from '@/api/dictionary';
 import { getVersionList } from '@/api/version';
 import { parseTime } from '@/utils';
 import { addCollection, deleteCollection } from '@/api/user'
 
 export default {
+    components: {
+        svgTable,
+    },
     filters: {
-		statusFilter(status) {
-			const statusMap = {
-				1: '',
-				2: 'info',
-				3: 'success',
-				4: 'warning',
-			}
-			return statusMap[status]
-		},
+        statusFilter(status) {
+            const statusMap = {
+                1: '',
+                2: 'info',
+                3: 'success',
+                4: 'warning',
+            }
+            return statusMap[status]
+        },
 
-	},
+    },
     data() {
         return {
             activeName: 'detailInformation',
             collapseName: ['baseInformation', 'caliberDefinition'],
-            indicator: undefined,
+            indicator: {
+                indicatorId: '',
+                indicatorName: '',
+                indicatorType: '',
+                indicatorTypeName: '',
+                indicatorDesc: '',
+                dependentIndicatorId: '',
+                dependentIndicatorName: '',
+                derivationIds: [],
+                derivationNames: [],
+                modifierIds: [],
+                modifierNames: [],
+                timeCycleId: '',
+                timeCycleName: '',
+                compositedIds: [],
+                compositedNames: [],
+                calculateRule: '',
+                creatorId: '',
+                creatorName: '',
+                lastOperatorId: '',
+                lastOperatorName: '',
+                createTime: '',
+                lastOperateTime: '',
+                analyzableDimensions: '',
+                affiliatedReportLinks: '',
+                businessCaliber: '',
+                businessCaliberLeader: '',
+                technicalCaliber: '',
+                realtimeTechnicalCaliber: '',
+                technicalCaliberLeader: '',
+                competentAuthoritie: '',
+                version: {
+                    versionNum: '',
+                    versionDesc: '',
+                    operation: '',
+                    operatorId: '',
+                    operatorName: '',
+                    operateTime: '',
+                }
+            },
             indicatorId: this.$route.query.indicatorId,
             versions: undefined,
         };
@@ -130,6 +193,11 @@ export default {
         this.getVersions();
     },
     methods: {
+        /**
+         * @description: 获取指标详情信息
+         * @return {*}
+         * @author: wch
+         */
         getIndicator() {
             getIndicatorDetail({ indicatorId: this.indicatorId }).then(res => {
                 this.indicator = res.data.indicator;
@@ -141,6 +209,11 @@ export default {
                 console.log(error);
             });
         },
+        /**
+         * @description: 获取指标版本信息
+         * @return {*}
+         * @author: wch
+         */
         getVersions() {
             getVersionList({ indicatorId: this.indicatorId }).then(res => {
                 this.versions = res.data.versions;
@@ -156,47 +229,57 @@ export default {
         parseTime(date, format) {
             parseTime(date, format)
         },
+        /**
+         * @description: 收藏指标
+         * @return {*}
+         * @author: wch
+         */
         handleFavour() {
             addCollection({ indicatorId: this.indicatorId }).then(response => {
-				if (response.success) {
-					this.$set(this.indicator, 'isCollect', true)
-					this.$notify({
-						title: '操作成功',
-						message: response.message,
-						type: 'success',
-						duration: 2000
-					})
-				}
-				else {
-					this.$notify({
-						title: '操作失败',
-						message: response.message,
-						type: 'error',
-						duration: 2000
-					})
-				}
-			})
+                if (response.success) {
+                    this.$set(this.indicator, 'isCollect', true)
+                    this.$notify({
+                        title: '操作成功',
+                        message: response.message,
+                        type: 'success',
+                        duration: 2000
+                    })
+                }
+                else {
+                    this.$notify({
+                        title: '操作失败',
+                        message: response.message,
+                        type: 'error',
+                        duration: 2000
+                    })
+                }
+            })
         },
+        /**
+         * @description: 取消收藏指标
+         * @return {*}
+         * @author: wch
+         */
         handleCancleFavour() {
             deleteCollection({ indicatorId: this.indicatorId }).then(response => {
-				if (response.success) {
-					this.$set(this.indicator, 'isCollect', false)
-					this.$notify({
-						title: '操作成功',
-						message: response.message,
-						type: 'success',
-						duration: 2000
-					})
-				}
-				else {
-					this.$notify({
-						title: '操作失败',
-						message: response.message,
-						type: 'error',
-						duration: 2000
-					})
-				}
-			})
+                if (response.success) {
+                    this.$set(this.indicator, 'isCollect', false)
+                    this.$notify({
+                        title: '操作成功',
+                        message: response.message,
+                        type: 'success',
+                        duration: 2000
+                    })
+                }
+                else {
+                    this.$notify({
+                        title: '操作失败',
+                        message: response.message,
+                        type: 'error',
+                        duration: 2000
+                    })
+                }
+            })
         },
         handleEdit() {
             this.$router.push({ path: '/indicator/dictionary/edit', query: { indicatorId: this.indicatorId } })
@@ -301,11 +384,11 @@ export default {
 }
 
 .indicator_icon_container .indicator_type {
-    font-size: 12px; 
-    color: rgb(125,125,125); 
-    display: flex; 
-    justify-content: center; 
-    align-items: center; 
+    font-size: 12px;
+    color: rgb(125, 125, 125);
+    display: flex;
+    justify-content: center;
+    align-items: center;
     height: 20px;
     border-bottom: 1px solid #999;
     border-left: 1px solid #999;
@@ -339,21 +422,28 @@ export default {
     background-color: #eee;
 }
 
-.el-tabs--card>.el-tabs__header{
+.el-tabs--card>.el-tabs__header {
     border-bottom: 1px solid #ccc;
 }
 
-.el-tabs--card>.el-tabs__header .el-tabs__nav{
+.el-tabs--card>.el-tabs__header .el-tabs__nav {
     border: 1px solid #ccc;
     border-bottom: none;
 }
 
-.el-tabs--card>.el-tabs__header .el-tabs__item{
+.el-tabs--card>.el-tabs__header .el-tabs__item {
     border-left: 1px solid #ccc;
 }
 
-.el-card__body{
+.el-card__body {
     padding-top: 0px;
     padding-bottom: 5px;
+}
+
+.svg {
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+    height: 550px;
 }
 </style>

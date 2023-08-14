@@ -70,9 +70,9 @@ export const constantRoutes = [
 			},
 			{
 				path: 'organization',
-				name: '指标组织',
-				component: () => import('@/views/dictionary/test'),
-				meta: { title: '指标组织'}
+				name: '指标域管理',
+				component: () => import('@/views/dictionary/domain'),
+				meta: { title: '指标域管理'}
 			},
 			{
 				path: 'dictionary/add',

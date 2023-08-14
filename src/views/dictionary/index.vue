@@ -1,3 +1,12 @@
+<!--
+ * @Description: 指标管理->指标字典
+ * @Author: wch
+ * @email: 1301457114@qq.com
+ * @Date: 2023-07-13 10:28:16
+ * @LastEditors: wch
+ * @LastEditTime: 2023-08-14 15:11:15
+-->
+
 <template>
 	<el-container style="height: calc(100vh - 50px); border: 1px solid #eee;" >
 		<el-aside width="180px" style="background-color: rgb(255,255,255); border: 1px solid #eee">

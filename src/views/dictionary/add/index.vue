@@ -1,3 +1,12 @@
+<!--
+ * @Description: 指标管理->添加指标
+ * @Author: wch
+ * @email: 1301457114@qq.com
+ * @Date: 2023-07-21 10:56:30
+ * @LastEditors: wch
+ * @LastEditTime: 2023-08-14 15:08:48
+-->
+
 <template>
 	<div>
 		<el-form ref="form" :rules="formRules" :model="formData" size="small" label-width="auto" class="addForm">
@@ -15,8 +24,8 @@
 						prop="dependentIndicatorId">
 						<el-select v-model="formData.dependentIndicatorId" filterable placeholder="请选择依赖的主原子指标"
 							style="width: 100%;">
-							<el-option v-for="item in atomicIndicators" :key="item.indicatorId"
-								:label="item.indicatorName" :value="item.indicatorId">
+							<el-option v-for="item in atomicIndicators" :key="item.indicatorId" :label="item.indicatorName"
+								:value="item.indicatorId">
 							</el-option>
 						</el-select>
 					</el-form-item>
@@ -37,13 +46,13 @@
 						</el-select>
 					</el-form-item>
 					<el-form-item v-if="formData.indicatorType == 3" label="修饰词" prop="modifiers">
-						<el-cascader v-model="formData.modifiers" clearable :props="{ multiple: true }" filterable :multiple-limit="5" 
-							:options="modifiers" style="width: 100%;" placeholder="请选择修饰词" :show-all-levels="false">
+						<el-cascader v-model="formData.modifiers" clearable :props="{ multiple: true }" filterable
+							:multiple-limit="5" :options="modifiers" style="width: 100%;" placeholder="请选择修饰词"
+							:show-all-levels="false">
 						</el-cascader>
 					</el-form-item>
 					<el-form-item label="指标名称" prop="indicatorName">
-						<el-input v-model="formData.indicatorName" placeholder="1-128个字符" maxlength="128"
-							show-word-limit />
+						<el-input v-model="formData.indicatorName" placeholder="1-128个字符" maxlength="128" show-word-limit />
 					</el-form-item>
 					<el-form-item label="指标标识" prop="indicatorId">
 						<el-input v-model="formData.indicatorId" placeholder="1-128个字符 不可重复" maxlength="128"
@@ -62,8 +71,8 @@
 							maxlength="512" show-word-limit />
 					</el-form-item>
 					<el-form-item label="指标域" prop="domainId">
-						<el-cascader v-model="formData.domainId" ref="domain" clearable :show-all-levels="false"
-							filterable :options="domains" style="width: 100%;" placeholder="请选择指标域"
+						<el-cascader v-model="formData.domainId" ref="domain" clearable :show-all-levels="false" filterable
+							:options="domains" style="width: 100%;" placeholder="请选择指标域"
 							@change="handleDomainChange"></el-cascader>
 					</el-form-item>
 					<el-form-item label="可分析维度" prop="analyzableDimensions">
@@ -117,7 +126,7 @@
 				<el-button type="info" @click="handleReset">重置</el-button>
 			</el-form-item>
 		</el-form>
-		
+
 		<el-dialog title="提示" :visible.sync="dialogVisible" width="30%">
 			<span>保存为草稿会将指标状态设为 [草稿] ,您可以在 [我的数据] 页面中继续编辑该指标</span>
 			<span slot="footer" class="dialog-footer">
@@ -229,9 +238,11 @@ export default {
 		this.getModifiers(false, true);
 	},
 	methods: {
-		onSubmit() {
-			console.log(this.formData);
-		},
+		/**
+		 * @description: 重置指标表单数据
+		 * @return {*}
+		 * @author: wch
+		 */
 		resetFromData() {
 			this.formData = {
 				indicatorType: "1",
@@ -258,6 +269,13 @@ export default {
 			this.analyzableDimensions = [];
 			this.affiliatedReportLinks = [];
 		},
+		/**
+		 * @description: 获取所有指标域
+		 * @param {*} needAll 是否需要"全部"这个结点
+		 * @param {*} allowParent 父节点是否可选
+		 * @return {*}
+		 * @author: wch
+		 */
 		getDomains(needAll, allowParent) {
 			getAllDomainList({ needAll: needAll, allowParent: allowParent }).then(response => {
 				this.domains = response.data.domains;
@@ -265,6 +283,11 @@ export default {
 				console.log(error);
 			});
 		},
+		/**
+		 * @description: 获取所有的主原子指标,和可以参与到复合指标运算中的指标
+		 * @return {*}
+		 * @author: wch
+		 */
 		getIndicators() {
 			this.indicatorSearchQuery.indicatorType = 0;
 			getIndicatorList(this.indicatorSearchQuery).then(response => {
@@ -274,6 +297,11 @@ export default {
 				console.log(error);
 			});
 		},
+		/**
+		 * @description: 获取所有衍生词
+		 * @return {*}
+		 * @author: wch
+		 */
 		getDerivations() {
 			getDerivationList(this.derivationSearchQuery).then(response => {
 				this.derivations = response.data.derivations;
@@ -281,6 +309,11 @@ export default {
 				console.log(error);
 			});
 		},
+		/**
+		 * @description: 获取所有时间周期
+		 * @return {*}
+		 * @author: wch
+		 */
 		getTimeCycles() {
 			getTimeCycleList().then(response => {
 				this.timeCycles = response.data.timecycles;
@@ -288,6 +321,12 @@ export default {
 				console.log(error);
 			});
 		},
+		/**
+		 * @description: 获取所有修饰词
+		 * @param {*} needAll 是否需要"全部"这个结点
+		 * @param {*} allowParent 父节点是否可选
+		 * @return {*}
+		 */
 		getModifiers(needAll, allowParent) {
 			getModifierList({ needAll: needAll, allowParent: allowParent }).then(response => {
 				this.modifiers = response.data.modifiers;
@@ -295,14 +334,19 @@ export default {
 				console.log(error);
 			});
 		},
+		/**
+		 * @description: 添加指标
+		 * @return {*}
+		 * @author: wch
+		 */
 		addIndicator() {
 			this.$refs['form'].validate((valid) => {
 				if (valid) {
-					if (this.analyzableDimensions != null){
+					if (this.analyzableDimensions != null) {
 						this.formData.analyzableDimensions = this.analyzableDimensions.join(',');
 						this.analyzableDimensions = [];
 					}
-					if (this.affiliatedReportLinks != null){
+					if (this.affiliatedReportLinks != null) {
 						this.formData.affiliatedReportLinks = this.affiliatedReportLinks.join(',');
 						this.affiliatedReportLinks = [];
 					}

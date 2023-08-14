@@ -1,8 +1,18 @@
+<!--
+ * @Description: 业务限定->修饰词
+ * @Author: wch
+ * @email: 1301457114@qq.com
+ * @Date: 2023-07-13 10:28:16
+ * @LastEditors: wch
+ * @LastEditTime: 2023-08-14 15:33:37
+-->
+
+
 <template>
 	<div class="app-container">
 		<div class="filter-container" style="display: inline-block; width: 100%;">
 			<el-button class="filter-item" size="mini" type="primary" icon="el-icon-edit"
-				@click="resetModifier();dialogAddFromVisible = true;">
+				@click="resetModifier(); dialogAddFromVisible = true;">
 				新增修饰词
 			</el-button>
 			<el-button class="filter-item" size="mini" type="primary" icon="el-icon-edit" @click="handleBatchUpload">
@@ -59,11 +69,10 @@
 					<span>{{ row.modifierValueName }}</span>
 				</template>
 			</el-table-column>
-			<el-table-column label="操作" align="center" width="180" class-name="small-padding fixed-width">
+			<el-table-column label="操作" align="left" width="250" class-name="small-padding fixed-width">
 				<template slot-scope="{row,$index}">
-					<el-button size="mini" @click="handleEdit(row)">
-						编辑
-					</el-button>
+					<el-button size="mini" @click="handleEdit(row)">编辑</el-button>
+					<el-button size="mini" @click="handleQuote(row)" type="primary">引用详情</el-button>
 					<el-button v-if="row.isCollect == false" size="mini" @click="handleFavour(row, $index)" type="success">
 						收藏
 					</el-button>
@@ -122,6 +131,27 @@
 			</div>
 		</el-dialog>
 
+		<el-dialog title="修饰词引用详情" :visible.sync="quoteVisible" width="50%">
+			<el-table :data="quoteIndicators" border>
+				<el-table-column prop="indicatorId" label="指标标识" align="center">
+					<template slot-scope="{row}">
+						<el-link type="primary" :underline="false" @click="handlePath(row.indicatorId)">{{ row.indicatorId
+						}}</el-link>
+					</template>
+				</el-table-column>
+				<el-table-column prop="indicatorName" label="指标名称" align="center">
+					<template slot-scope="{row}">
+						<span>{{ row.indicatorName }}</span>
+					</template>
+				</el-table-column>
+				<el-table-column prop="businessCaliberLeader" label="业务口径负责人" align="center">
+					<template slot-scope="{row}">
+						<span>{{ row.businessCaliberLeader }}</span>
+					</template>
+				</el-table-column>
+			</el-table>
+		</el-dialog>
+
 		<el-dialog title="导出设定" :visible.sync="dialogVisible" width="30%">
 			<span>导出本页的修饰词还是全部修饰词?</span>
 			<span slot="footer" class="dialog-footer">
@@ -133,7 +163,7 @@
 </template>
 
 <script>
-import { findModifier, addModifier, updateModifier } from '@/api/modifier.js';
+import { findModifier, addModifier, updateModifier, findQuoteIndicators } from '@/api/modifier.js';
 import { addCollection, deleteCollection } from '@/api/user'
 import waves from '@/directive/waves' // waves directive
 import { parseTime } from '@/utils/index.js'
@@ -152,6 +182,8 @@ export default {
 			dialogVisible: false,
 			dialogAddFromVisible: false,
 			dialogEditFromVisible: false,
+			quoteVisible: false,
+			quoteIndicators: undefined,
 			modifierValueNames: [],
 			types: [{ key: "all", label: "全部" }, { key: "modifierName", label: "修饰词名称" }, { key: "creatorName", label: "创建者" }, { key: "calculationCaliber", label: "计算口径" }],
 			modifierQuery: {
@@ -188,6 +220,11 @@ export default {
 		this.getmodifiers()
 	},
 	methods: {
+		/**
+		 * @description: 获取修饰词列表
+		 * @return {*}
+		 * @author: wch
+		 */
 		getmodifiers() {
 			this.modifierQuery.needPage = true;
 			if (this.modifierQuery.sort == null)
@@ -207,6 +244,23 @@ export default {
 				this.modifierQuery.sort = null;
 			})
 		},
+		/**
+		 * @description: 获取引用该修饰词的指标
+		 * @param {*} row
+		 * @return {*}
+		 * @author: wch
+		 */
+		handleQuote(row) {
+			findQuoteIndicators({ modifierId: row.modifierId }).then(res => {
+				if (res.success) {
+					this.quoteIndicators = res.data.indicators
+					this.quoteVisible = true
+				}
+			})
+		},
+		handlePath(indicatorId) {
+			this.$router.push({ path: '/indicator/dictionary/detail', query: { indicatorId: indicatorId } })
+		},
 		handleSearch() {
 			this.modifierQuery.page = 1;
 			this.getmodifiers();
@@ -217,7 +271,7 @@ export default {
 		handleBack() {
 			this.dialogAddFromVisible = false;
 			this.dialogEditFromVisible = false;
-			this.resetModifier;
+			this.resetModifier();
 		},
 		handleResetSearchQuery() {
 			this.modifierQuery = {
@@ -237,12 +291,17 @@ export default {
 			this.existModifier.description = row.description
 			this.dialogEditFromVisible = true
 		},
+		/**
+		 * @description: 添加修饰词
+		 * @return {*}
+		 * @author: wch
+		 */
 		addModifier() {
 			this.$refs['addForm'].validate((valid) => {
 				if (valid) {
 					this.newModifier.modifierId = undefined;
-					for (let i = 0 ; i < this.modifierValueNames.length; i++){
-						this.newModifier.modifierValues.push({modifierName: this.modifierValueNames[i]})
+					for (let i = 0; i < this.modifierValueNames.length; i++) {
+						this.newModifier.modifierValues.push({ modifierName: this.modifierValueNames[i] })
 					}
 					addModifier(this.newModifier).then(response => {
 						if (response.success) {
@@ -275,11 +334,16 @@ export default {
 				}
 			});
 		},
+		/**
+		 * @description: 更新修饰词信息
+		 * @return {*}
+		 * @author: wch
+		 */
 		editModifier() {
 			this.$refs['editForm'].validate((valid) => {
 				if (valid) {
-					for (let i = 0 ; i < this.modifierValueNames.length; i++){
-						this.existModifier.modifierValues.push({modifierName: this.modifierValueNames[i]})
+					for (let i = 0; i < this.modifierValueNames.length; i++) {
+						this.existModifier.modifierValues.push({ modifierName: this.modifierValueNames[i] })
 					}
 					updateModifier(this.existModifier).then(response => {
 						if (response.success) {
@@ -290,7 +354,7 @@ export default {
 								duration: 2000
 							})
 							this.dialogEditFromVisible = false
-							this.resetModifier;
+							this.resetModifier();
 							this.getmodifiers();
 						}
 						else {
@@ -311,6 +375,13 @@ export default {
 				}
 			});
 		},
+		/**
+		 * @description: 收藏修饰词
+		 * @param {*} row
+		 * @param {*} index
+		 * @return {*}
+		 * @author: wch
+		 */
 		handleFavour(row, index) {
 			addCollection({ modifierId: row.modifierId }).then(response => {
 				if (response.success) {
@@ -332,6 +403,12 @@ export default {
 				}
 			})
 		},
+		/**
+		 * @description: 取消收藏修饰词
+		 * @param {*} row
+		 * @param {*} index
+		 * @return {*}
+		 */
 		handleCancelFavour(row, index) {
 			deleteCollection({ modifierId: row.modifierId }).then(response => {
 				if (response.success) {
@@ -362,11 +439,20 @@ export default {
 			}
 			this.modifierValueNames = []
 		},
+		/**
+		 * @description: 导出表格本页的修饰词为excel文件
+		 * @return {*}
+		 * @author: wch
+		 */
 		downloadPage() {
 			this.modifierQuery.needPage = true;
 			this.downloadModifiers = this.modifiers
 			this.download();
 		},
+		/**
+		 * @description: 导出表格所有的修饰词为excel文件
+		 * @return {*}
+		 */
 		downloadAll() {
 			this.modifierQuery.needPage = false;
 			findModifier(this.modifierQuery).then(response => {
@@ -410,7 +496,7 @@ export default {
 			return "border-color: #ddd;"
 		},
 		tableHeaderCellStyle() {
-			return "border-color: #ddd;"
+			return "border-color: #ddd; text-align: center;"
 		},
 	},
 }
@@ -438,4 +524,5 @@ export default {
 .el-table td {
 	padding-top: 6px;
 	padding-bottom: 6px;
-}</style>
+}
+</style>

@@ -1,9 +1,18 @@
+<!--
+ * @Description: 指标地图
+ * @Author: wch
+ * @email: 1301457114@qq.com
+ * @Date: 2023-07-13 10:28:16
+ * @LastEditors: wch
+ * @LastEditTime: 2023-08-14 14:04:00
+-->
+
 <template>
 	<div class="main_container">
 		<div class="title_map">
 			<h3 style="font-size: 26px; margin-top: 15px; margin-bottom: 20px;">指标地图</h3>
 			<div class="search">
-				<el-input v-model="searchKeyword" clearable placeholder="请输入指标搜索" style="width: 40%;"></el-input>
+				<el-input v-model="searchKeyword" clearable placeholder="输入指标名称搜索" style="width: 40%;"></el-input>
 				<el-button type="primary" icon="el-icon-search" @click="handleSearch">搜索</el-button>
 			</div>
 		</div>
@@ -34,14 +43,18 @@
 			<div class="indicator_num">
 				<el-row :gutter="20">
 					<el-col :span="6" v-for="index of [0, 1, 2, 3]">
-						<svg-icon :icon-class="iconClassNames[index]" style="font-size: 40px;" @click="handleRoute(routeAddressNames[index])"></svg-icon>
-						<el-statistic group-separator="," :value="objects[index].value" :title="objects[index].label"></el-statistic>
+						<svg-icon :icon-class="iconClassNames[index]" style="font-size: 40px;"
+							@click="handleRoute(routeAddressNames[index])"></svg-icon>
+						<el-statistic group-separator="," :value="objects[index].value"
+							:title="objects[index].label"></el-statistic>
 					</el-col>
 				</el-row>
 				<el-row :gutter="20">
 					<el-col :span="6" v-for="index of [4, 5, 6, 7]">
-						<svg-icon :icon-class="iconClassNames[index]" style="font-size: 40px;" @click="handleRoute(routeAddressNames[index])"></svg-icon>
-						<el-statistic group-separator="," :value="objects[index].value" :title="objects[index].label"></el-statistic>
+						<svg-icon :icon-class="iconClassNames[index]" style="font-size: 40px;"
+							@click="handleRoute(routeAddressNames[index])"></svg-icon>
+						<el-statistic group-separator="," :value="objects[index].value"
+							:title="objects[index].label"></el-statistic>
 					</el-col>
 				</el-row>
 			</div>
@@ -50,12 +63,13 @@
 			<el-card class="edit-card" style="width: 500px;">
 				<div slot="header" class="clearfix">
 					<span style="width: 85%;"><i class="el-icon-edit" style="padding-right: 5px;"></i>我的草稿</span>
-					<el-button style="float: right; padding: 3px 0" type="text">更多<i
+					<el-button style="float: right; padding: 3px 0" type="text" @click="handleUserDraft()">更多<i
 							class="el-icon-arrow-right el-icon--right"></i></el-button>
 				</div>
 				<el-empty v-if="editIndicators.length == 0" :image-size="100"></el-empty>
 				<div v-for="indicator in editIndicators" class="edit_indicator">
-					<el-link @click="handleMore(indicator)" style="margin-right: auto;">{{indicator.information }}</el-link>
+					<el-link @click="handleMore(indicator)" style="margin-right: auto;">{{ indicator.information
+					}}</el-link>
 					<el-tag type="info" size="mini" style="margin-left: auto;">{{ indicator.lastOperateDay }}</el-tag>
 				</div>
 			</el-card>
@@ -88,7 +102,7 @@ export default {
 		return {
 			objects: [],
 			routeAddressNames: ["/indicator/dictionary", "/indicator/dictionary", "/indicator/dictionary", "/indicator/dictionary", "/indicator/dictionary", "/words/derivation", "/words/modifier", "/words/timecycle"],
-			iconClassNames: ["indicator_all", "indicator_atomic", "indicator_derivation" ,"indicator_modifier", "indicator_composite", "derivation", "modifier", "timecycle"],
+			iconClassNames: ["indicator_all", "indicator_atomic", "indicator_derivation", "indicator_modifier", "indicator_composite", "derivation", "modifier", "timecycle"],
 			searchKeyword: undefined,
 			editIndicators: [],
 			viewIndicators: [],
@@ -111,6 +125,11 @@ export default {
 		this.getIndexInfos();
 	},
 	methods: {
+		/**
+		 * @description: 获取热门浏览指标
+		 * @return {}
+		 * @author: wch
+		 */
 		getViewIndicators() {
 			getViewMaxIndicatorList().then(response => {
 				this.viewIndicators = response.data.indicators;
@@ -123,6 +142,11 @@ export default {
 				console.log(error);
 			})
 		},
+		/**
+		 * @description: 获取用户收藏的指标,只展示5个
+		 * @return {*}
+		 * @author: wch
+		 */
 		getFavourIndicators() {
 			this.indicatorQuery.needPage = false
 			getFavourIndicatorList(this.indicatorQuery).then(response => {
@@ -136,6 +160,11 @@ export default {
 				console.log(error);
 			})
 		},
+		/**
+		 * @description: 获取用户创建的指标,只展示5个
+		 * @return {*}
+		 * @author: wch
+		 */
 		getCreateIndicators() {
 			this.indicatorQuery.needPage = false
 			getIndicatorList(this.indicatorQuery).then(response => {
@@ -148,7 +177,6 @@ export default {
 					this.editIndicators[i].lastOperateTime = new Date(this.editIndicators[i].lastOperateTime)
 					var nowTime = new Date()
 					var diffDays = (nowTime.getTime() - this.editIndicators[i].lastOperateTime.getTime()) / (1000 * 60 * 60 * 24)
-					console.log(nowTime.getHours())
 					if (diffDays < 1)
 						this.editIndicators[i].lastOperateDay = "最近编辑过"
 					else
@@ -158,10 +186,14 @@ export default {
 				console.log(error);
 			})
 		},
+		/**
+		 * @description: 获取指标数量,衍生词,修饰词,时间周期数量信息
+		 * @return {*}
+		 * @author: wch
+		 */
 		getIndexInfos() {
 			getIndexInfo().then(response => {
 				this.objects = response.data.informations;
-
 			}).catch(error => {
 				console.log(error);
 			})
@@ -171,6 +203,9 @@ export default {
 		},
 		handleSearch() {
 			this.$router.push({ name: "指标字典", params: { searchKeyword: this.searchKeyword } })
+		},
+		handleUserDraft() {
+			this.$router.push({ path: '/mydata' })
 		},
 		handleMore(indicator) {
 			this.$router.push({ path: '/indicator/dictionary/detail', query: { indicatorId: indicator.indicatorId } })

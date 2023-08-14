@@ -1,3 +1,12 @@
+<!--
+ * @Description: 登录界面
+ * @Author: wch
+ * @email: 1301457114@qq.com
+ * @Date: 2023-07-13 10:28:16
+ * @LastEditors: wch
+ * @LastEditTime: 2023-08-14 15:13:24
+-->
+
 <template>
 	<div class="login-container">
 		<el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" auto-complete="on"
@@ -11,7 +20,7 @@
 				<span class="svg-container">
 					<svg-icon icon-class="user" />
 				</span>
-				<el-input ref="username" v-model="loginForm.username" placeholder="Username" name="username" type="text"
+				<el-input ref="username" v-model="loginForm.username" placeholder="请输入用户名" name="username" type="text"
 					tabindex="1" auto-complete="on" />
 			</el-form-item>
 
@@ -20,15 +29,42 @@
 					<svg-icon icon-class="password" />
 				</span>
 				<el-input :key="passwordType" ref="password" v-model="loginForm.password" :type="passwordType"
-					placeholder="Password" name="password" tabindex="2" auto-complete="on"
+					placeholder="请输入密码" name="password" tabindex="2" auto-complete="on" @keyup.enter.native="handleLogin" />
+				<span class="show-pwd" @click="showPwd">
+					<svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'" />
+				</span>
+			</el-form-item>
+
+			<el-form-item prop="re_password" v-if="state == 'register'">
+				<span class="svg-container">
+					<svg-icon icon-class="password" />
+				</span>
+				<el-input :key="passwordType" ref="re_password" v-model="loginForm.re_password" :type="passwordType"
+					placeholder="请确认密码" name="re_password" tabindex="2" auto-complete="on"
 					@keyup.enter.native="handleLogin" />
 				<span class="show-pwd" @click="showPwd">
 					<svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'" />
 				</span>
 			</el-form-item>
 
-			<el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;"
-				@click.native.prevent="handleLogin">Login</el-button>
+			<el-form-item prop="email" v-if="state == 'register'">
+				<span class="svg-container">
+					<svg-icon icon-class="user" />
+				</span>
+				<el-input ref="email" v-model="loginForm.email" placeholder="请输入邮箱(可选)" name="email" type="text"
+					tabindex="1" auto-complete="on" />
+			</el-form-item>
+
+			<el-button-group style="width: 100%; margin-bottom: 30px;" v-if="state == 'login'">
+				<el-button :loading="loading" type="primary" style="width: calc(50% - 10px); border-radius: 0px;"
+					@click.native.prevent="handleLogin">登录</el-button>
+				<el-button :loading="loading" type="primary"
+					style="width: calc(50% - 10px); margin-left: 20px; border-radius: 0px;"
+					@click.native.prevent="state = 'register'">注册</el-button>
+			</el-button-group>
+
+			<el-button :loading="loading" type="primary" style="margin-bottom: 30px; width: 100%;"
+				@click.native.prevent="handleRegister" v-if="state == 'register'">登录/注册</el-button>
 
 		</el-form>
 	</div>
@@ -40,7 +76,7 @@ export default {
 	data() {
 		const validatePassword = (rule, value, callback) => {
 			if (value.length < 6) {
-				callback(new Error('The password can not be less than 6 digits'))
+				callback(new Error('密码长度不能小于6位'))
 			} else {
 				callback()
 			}
@@ -48,15 +84,26 @@ export default {
 		return {
 			loginForm: {
 				username: '',
-				password: ''
+				password: '',
+				re_password: '',
+				email: '',
 			},
 			loginRules: {
-				username: [{ required: true}],
-				password: [{ required: true, trigger: 'blur', validator: validatePassword }]
+				username: [{ required: true }],
+				password: [{ required: true, trigger: 'blur', validator: validatePassword }],
+				re_password: [{ trigger: 'blur', validator: this.state == 'register' ? validateRePassword : null }]
 			},
 			loading: false,
 			passwordType: 'password',
-			redirect: undefined
+			state: "login",
+			redirect: undefined,
+			validateRePassword: (rule, value, callback) => {
+				if (value != this.loginForm.password) {
+					callback(new Error('两次输入的密码不一致'))
+				} else {
+					callback()
+				}
+			}
 		}
 	},
 	watch: {
@@ -78,6 +125,11 @@ export default {
 				this.$refs.password.focus()
 			})
 		},
+		/**
+		 * @description: 用户登录
+		 * @return {*}
+		 * @author: wch
+		 */
 		handleLogin() {
 			this.$refs.loginForm.validate(valid => {
 				if (valid) {
@@ -93,8 +145,43 @@ export default {
 					return false
 				}
 			})
+		},
+		/**
+		 * @description: 用户注册
+		 * @return {*}
+		 */
+		handleRegister() {
+			this.$refs.loginForm.validate(valid => {
+				if (valid) {
+					this.loading = true
+					this.$store.dispatch('user/register', this.loginForm).then(() => {
+						this.$router.push({ path: this.redirect || '/' })
+						this.loading = false
+						this.$notify({
+							title: '注册成功',
+							message: '即将跳转到首页',
+							type: 'success',
+							duration: 2000
+						})
+					}).catch(() => {
+						this.loading = false
+					})
+				} else {
+					console.log('error submit!!')
+					return false
+				}
+			})
 		}
-	}
+	},
+	watch: {
+		state(newValue) {
+			if (newValue == 'register') {
+				this.loginRules.re_password[0].validator = this.validateRePassword;
+			} else {
+				this.loginRules.re_password[0].validator = null;
+			}
+		}
+	},
 }
 </script>
 
@@ -155,12 +242,15 @@ $light_gray: #eee;
 	width: 100%;
 	background-color: $bg;
 	overflow: hidden;
+	display: flex;
+	justify-content: center;
+	align-items: center;
 
 	.login-form {
 		position: relative;
 		width: 520px;
 		max-width: 100%;
-		padding: 160px 35px 0;
+		padding: 0px 35px 20px;
 		margin: 0 auto;
 		overflow: hidden;
 	}

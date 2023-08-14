@@ -1,4 +1,13 @@
-import { login, logout, getInfo } from "@/api/user";
+/*
+ * @Description: 全局用户信息,仅添加了用户注册的方法,其他方法没有做修改
+ * @Author: wch
+ * @email: 1301457114@qq.com
+ * @Date: 2023-07-13 10:28:16
+ * @LastEditors: wch
+ * @LastEditTime: 2023-08-14 14:33:01
+ */
+
+import { login, logout, getInfo, register } from "@/api/user";
 import { getToken, setToken, removeToken } from "@/utils/auth";
 import { resetRouter } from "@/router";
 
@@ -30,9 +39,28 @@ const mutations = {
 const actions = {
 	// user login
 	login({ commit }, userInfo) {
+		console.log("user login")
 		const { username, password } = userInfo;
 		return new Promise((resolve, reject) => {
 			login({ username: username.trim(), password: password })
+				.then((response) => {
+					const { data } = response;
+					commit("SET_TOKEN", data.token);
+					setToken(data.token);
+					resolve();
+				})
+				.catch((error) => {
+					console.log(error);
+					reject(error);
+				});
+		});
+	},
+
+	//user register
+	register({ commit }, userInfo) {
+		const { username, password, email } = userInfo;
+		return new Promise((resolve, reject) => {
+			register({ username: username.trim(), password: password, email: email })
 				.then((response) => {
 					const { data } = response;
 					commit("SET_TOKEN", data.token);

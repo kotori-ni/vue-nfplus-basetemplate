@@ -1,3 +1,12 @@
+<!--
+ * @Description: 指标域侧边栏组件
+ * @Author: wch
+ * @email: 1301457114@qq.com
+ * @Date: 2023-07-14 10:38:29
+ * @LastEditors: wch
+ * @LastEditTime: 2023-08-14 14:50:37
+-->
+
 <template>
 	<el-container>
 		<el-header class="tree-header" style="height: auto;">
@@ -71,14 +80,19 @@ export default {
 		query(newQuery) {
 			this.childRequestQuery = newQuery
 		},
-		childRequestQuery(newQuery){
+		childRequestQuery(newQuery) {
 			this.$emit('update', newQuery)
 		}
 	},
 	methods: {
+		/**
+		 * @description: 获取选中的指标域结点id信息
+		 * @return {*}
+		 * @author: wch
+		 */
 		getCheckedKeys() {
 			console.log(this.$refs.tree.getCheckedKeys().length)
-			if (this.$refs.tree.getCheckedKeys().length > 0){
+			if (this.$refs.tree.getCheckedKeys().length > 0) {
 				this.childRequestQuery.domainId = this.$refs.tree.getCheckedKeys()[0]
 				this.$refs.tree.setCheckedKeys([]);
 			}
@@ -93,17 +107,24 @@ export default {
 				return (domain.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
 			};
 		},
-		handleInputSelect(item){
+		handleInputSelect(item) {
 			this.childRequestQuery.domainId = item.value
 		},
+		/**
+		 * @description: 获取所有指标域
+		 * @param {*} needAll 是否需要"全部"这个结点
+		 * @param {*} allowParent 父节点是否可选
+		 * @return {*}
+		 * @author: wch
+		 */
 		getDomainData(needAll, allowParent) {
-			getAllDomainList({needAll: needAll, allowParent: allowParent}).then(response => {
+			getAllDomainList({ needAll: needAll, allowParent: allowParent }).then(response => {
 				this.tree_domains_data = response.data.domains;
 				var labels = [];
 				response.data.domains.forEach(function (domain) {
 					if (domain.children) {
 						domain.children.forEach(function (child) {
-							labels.push({"value":child.label, "id":child.value});
+							labels.push({ "value": child.label, "id": child.value });
 						});
 					}
 				});

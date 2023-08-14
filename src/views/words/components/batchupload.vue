@@ -1,3 +1,12 @@
+<!--
+ * @Description: 业务限定 批量上传组件
+ * @Author: wch
+ * @email: 1301457114@qq.com
+ * @Date: 2023-08-02 10:43:09
+ * @LastEditors: wch
+ * @LastEditTime: 2023-08-14 15:27:34
+-->
+
 <template>
     <div class="app-container">
         <div style="display: flex;">
@@ -18,7 +27,6 @@ import UploadExcelComponent from '@/components/UploadExcel/index.vue'
 import { addDerivationList } from '@/api/derivation.js'
 import { addModifierList } from '@/api/modifier.js'
 import { addTimeCycleList } from '@/api/timecycle'
-
 
 export default {
     name: 'UploadExcel',
@@ -72,6 +80,11 @@ export default {
 				})
 			})
         },
+        /**
+         * @description: 上传文件内容
+         * @return {*}
+         * @author: wch
+         */        
         handleUpload() {
             if (this.tableData.length == 0) {
                 this.$notify({

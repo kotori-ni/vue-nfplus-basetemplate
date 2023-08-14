@@ -1,7 +1,17 @@
+<!--
+ * @Description: 业务限定->时间周期
+ * @Author: wch
+ * @email: 1301457114@qq.com
+ * @Date: 2023-07-13 18:10:39
+ * @LastEditors: wch
+ * @LastEditTime: 2023-08-14 15:37:57
+-->
+
 <template>
 	<div class="app-container">
 		<div class="filter-container" style="display: inline-block; width: 100%;">
-			<el-button class="filter-item" size="mini" type="primary" icon="el-icon-edit" @click="dialogAddFromVisible = true">
+			<el-button class="filter-item" size="mini" type="primary" icon="el-icon-edit"
+				@click="dialogAddFromVisible = true">
 				新增时间周期
 			</el-button>
 			<el-button class="filter-item" size="mini" type="primary" icon="el-icon-edit" @click="handleBatchUpload">
@@ -12,12 +22,15 @@
 				导出
 			</el-button>
 			<div style="float: right;" class="search_item">
-				<el-select v-model="timeCycleQuery.sort" placeholder="请选择" clearable style="width: 120px; margin-right: 10px;">
+				<el-select v-model="timeCycleQuery.sort" placeholder="请选择" clearable
+					style="width: 120px; margin-right: 10px;">
 					<el-option v-for="item in types" :key="item.key" :label="item.label" :value="item.key" />
 				</el-select>
-				<el-input v-model="timeCycleQuery.keyword" placeholder="请输入关键词" clearable style="width: 150px;" class="input"/>
-				<el-link :underline="false" style="margin-left: 10px; margin-right: 10px;" @click="handleResetSearchQuery">重置<i
-						class="el-icon-setting el-icon--right" style="float: right;"></i></el-link>
+				<el-input v-model="timeCycleQuery.keyword" placeholder="请输入关键词" clearable style="width: 150px;"
+					class="input" />
+				<el-link :underline="false" style="margin-left: 10px; margin-right: 10px;"
+					@click="handleResetSearchQuery">重置<i class="el-icon-setting el-icon--right"
+						style="float: right;"></i></el-link>
 				<el-button v-waves class="search-item" type="primary" icon="el-icon-search" @click="handleSearch"
 					size="mini">
 					搜索
@@ -55,33 +68,33 @@
 					<span>{{ row.description }}</span>
 				</template>
 			</el-table-column>
-			<el-table-column label="操作" align="center" width="180" class-name="small-padding fixed-width">
+			<el-table-column label="操作" align="left" width="250" class-name="small-padding fixed-width">
 				<template slot-scope="{row,$index}">
-					<el-button size="mini" @click="handleEdit(row)">
-						编辑
-					</el-button>
+					<el-button size="mini" @click="handleEdit(row)">编辑</el-button>
+					<el-button size="mini" @click="handleQuote(row)" type="primary">引用详情</el-button>
 					<el-button v-if="row.isCollect == false" size="mini" @click="handleFavour(row, $index)" type="success">
 						收藏
 					</el-button>
-					<el-button v-if="row.isCollect == true" size="mini" @click="handleCancelFavour(row, $index)" type="warning">
+					<el-button v-if="row.isCollect == true" size="mini" @click="handleCancelFavour(row, $index)"
+						type="warning">
 						已收藏
 					</el-button>
 				</template>
 			</el-table-column>
 		</el-table>
 
-		<pagination v-show="total >= 0" :total="total" :page.sync="timeCycleQuery.page" :limit.sync="timeCycleQuery.pageSize"
-			@pagination="getTimeCycles" style="height: 65px;" />
+		<pagination v-show="total >= 0" :total="total" :page.sync="timeCycleQuery.page"
+			:limit.sync="timeCycleQuery.pageSize" @pagination="getTimeCycles" style="height: 65px;" />
 
 		<el-dialog title="新增时间周期" :visible.sync="dialogAddFromVisible">
 			<el-form ref="addForm" :rules="rules" :model="newTimeCycle" label-position="left" label-width="auto">
 				<el-form-item label="时间周期名称" prop="timeCycleName">
-					<el-input v-model="newTimeCycle.timeCycleName" placeholder="1-64个字符" maxlength="128"
-							show-word-limit autosize type="textarea"/>
+					<el-input v-model="newTimeCycle.timeCycleName" placeholder="1-64个字符" maxlength="128" show-word-limit
+						autosize type="textarea" />
 				</el-form-item>
 				<el-form-item label="描述" prop="description">
-					<el-input v-model="newTimeCycle.description" placeholder="1-255个字符" maxlength="255"
-							show-word-limit autosize type="textarea"/>
+					<el-input v-model="newTimeCycle.description" placeholder="1-255个字符" maxlength="255" show-word-limit
+						autosize type="textarea" />
 				</el-form-item>
 			</el-form>
 			<div slot="footer" class="dialog-footer">
@@ -93,12 +106,12 @@
 		<el-dialog title="编辑时间周期" :visible.sync="dialogEditFromVisible">
 			<el-form ref="editForm" :rules="rules" :model="existTimeCycle" label-position="left" label-width="auto">
 				<el-form-item label="时间周期名称" prop="timeCycleName">
-					<el-input v-model="existTimeCycle.timeCycleName" placeholder="1-64个字符" maxlength="128"
-							show-word-limit autosize type="textarea"/>
+					<el-input v-model="existTimeCycle.timeCycleName" placeholder="1-64个字符" maxlength="128" show-word-limit
+						autosize type="textarea" />
 				</el-form-item>
 				<el-form-item label="描述" prop="description">
-					<el-input v-model="existTimeCycle.description" placeholder="1-255个字符" maxlength="255"
-							show-word-limit autosize type="textarea"/>
+					<el-input v-model="existTimeCycle.description" placeholder="1-255个字符" maxlength="255" show-word-limit
+						autosize type="textarea" />
 				</el-form-item>
 			</el-form>
 			<div slot="footer" class="dialog-footer">
@@ -114,11 +127,32 @@
 				<el-button type="primary" @click="downloadAll">全部</el-button>
 			</span>
 		</el-dialog>
+
+		<el-dialog title="时间周期引用详情" :visible.sync="quoteVisible" width="50%">
+			<el-table :data="quoteIndicators" border>
+				<el-table-column prop="indicatorId" label="指标标识" align="center">
+					<template slot-scope="{row}">
+						<el-link type="primary" :underline="false" @click="handlePath(row.indicatorId)">{{ row.indicatorId
+						}}</el-link>
+					</template>
+				</el-table-column>
+				<el-table-column prop="indicatorName" label="指标名称" align="center">
+					<template slot-scope="{row}">
+						<span>{{ row.indicatorName }}</span>
+					</template>
+				</el-table-column>
+				<el-table-column prop="businessCaliberLeader" label="业务口径负责人" align="center">
+					<template slot-scope="{row}">
+						<span>{{ row.businessCaliberLeader }}</span>
+					</template>
+				</el-table-column>
+			</el-table>
+		</el-dialog>
 	</div>
 </template>
 
 <script>
-import { findTimeCycle, addTimeCycle, updateTimeCycle } from '@/api/timecycle.js';
+import { findTimeCycle, addTimeCycle, updateTimeCycle, findQuoteIndicators } from '@/api/timecycle.js';
 import { addCollection, deleteCollection } from '@/api/user'
 import waves from '@/directive/waves' // waves directive
 import { parseTime } from '@/utils/index.js'
@@ -132,12 +166,14 @@ export default {
 			tableKey: 0,
 			total: 0,
 			timeCycles: undefined,
+			quoteVisible: false,
+			quoteIndicators: undefined,
 			downloadTimeCycles: undefined,
 			downloadLoading: false,
 			dialogVisible: false,
 			dialogAddFromVisible: false,
 			dialogEditFromVisible: false,
-			types: [{key: "all", label: "全部"}, { key: "timeCycleName", label: "时间周期名称" }, { key: "creatorName", label: "创建者" } ],
+			types: [{ key: "all", label: "全部" }, { key: "timeCycleName", label: "时间周期名称" }, { key: "creatorName", label: "创建者" }],
 			timeCycleQuery: {
 				page: 1,
 				pageSize: 10,
@@ -170,6 +206,11 @@ export default {
 		this.getTimeCycles()
 	},
 	methods: {
+		/**
+		 * @description: 获取所有时间周期
+		 * @return {*}
+		 * @author: wch
+		 */
 		getTimeCycles() {
 			this.timeCycleQuery.needPage = true;
 			if (this.timeCycleQuery.sort == null)
@@ -179,10 +220,27 @@ export default {
 				this.timeCycles = res.data.timeCycles.records
 				this.tableKey += 1
 
-				for (let i = 0; i < this.timeCycles.length; i++) 
+				for (let i = 0; i < this.timeCycles.length; i++)
 					this.timeCycles[i].createTime = parseTime(new Date(this.timeCycles[i].createTime), '{y}-{m}-{d} {h}:{i}')
 				this.timeCycleQuery.sort = null;
 			})
+		},
+		/**
+		 * @description: 获取引用该时间周期的指标
+		 * @param {*} row
+		 * @return {*}
+		 * @author: wch
+		 */
+		handleQuote(row) {
+			findQuoteIndicators({ timeCycleId: row.timeCycleId }).then(res => {
+				if (res.success) {
+					this.quoteIndicators = res.data.indicators
+					this.quoteVisible = true
+				}
+			})
+		},
+		handlePath(indicatorId) {
+			this.$router.push({ path: '/indicator/dictionary/detail', query: { indicatorId: indicatorId } })
 		},
 		handleSearch() {
 			this.timeCycleQuery.page = 1;
@@ -194,7 +252,7 @@ export default {
 		handleBack() {
 			this.dialogAddFromVisible = false;
 			this.dialogEditFromVisible = false;
-			this.resetTimeCycle;
+			this.resetTimeCycle();
 		},
 		handleResetSearchQuery() {
 			this.timeCycleQuery = {
@@ -212,6 +270,11 @@ export default {
 			this.existTimeCycle.description = row.description
 			this.dialogEditFromVisible = true
 		},
+		/**
+		 * @description: 添加时间周期
+		 * @return {*}
+		 * @author: wch
+		 */
 		addTimeCycle() {
 			this.$refs['addForm'].validate((valid) => {
 				if (valid) {
@@ -246,7 +309,12 @@ export default {
 				}
 			});
 		},
-		editTimeCycle(){
+		/**
+		 * @description: 更新事件周期信息
+		 * @return {*}
+		 * @author: wch
+		 */
+		editTimeCycle() {
 			this.$refs['editForm'].validate((valid) => {
 				if (valid) {
 					updateTimeCycle(this.existTimeCycle).then(response => {
@@ -258,7 +326,7 @@ export default {
 								duration: 2000
 							})
 							this.dialogEditFromVisible = false
-							this.resetTimeCycle;
+							this.resetTimeCycle();
 							this.getTimeCycles();
 						}
 						else {
@@ -279,6 +347,13 @@ export default {
 				}
 			});
 		},
+		/**
+		 * @description: 收藏时间周期
+		 * @param {*} row
+		 * @param {*} index
+		 * @return {*}
+		 * @author: wch
+		 */
 		handleFavour(row, index) {
 			addCollection({ timeCycleId: row.timeCycleId }).then(response => {
 				if (response.success) {
@@ -300,6 +375,12 @@ export default {
 				}
 			})
 		},
+		/**
+ * @description: 取消收藏时间周期
+ * @param {*} row
+ * @param {*} index
+ * @return {*}
+ */
 		handleCancelFavour(row, index) {
 			deleteCollection({ timeCycleId: row.timeCycleId }).then(response => {
 				if (response.success) {
@@ -333,11 +414,20 @@ export default {
 				description: undefined,
 			}
 		},
+		/**
+		 * @description: 导出本页的时间周期为excel文件
+		 * @return {*}
+		 * @author: wch
+		 */
 		downloadPage() {
 			this.timeCycleQuery.needPage = true;
 			this.downloadTimeCycles = this.timeCycles
 			this.download();
 		},
+		/**
+		 * @description: 导出所有的时间周期为excel文件
+		 * @return {*}
+		 */
 		downloadAll() {
 			this.timeCycleQuery.needPage = false;
 			findTimeCycle(this.timeCycleQuery).then(response => {
@@ -373,7 +463,7 @@ export default {
 			return "border-color: #ddd;"
 		},
 		tableHeaderCellStyle() {
-			return "border-color: #ddd;"
+			return "border-color: #ddd; text-align: center;"
 		},
 	},
 }

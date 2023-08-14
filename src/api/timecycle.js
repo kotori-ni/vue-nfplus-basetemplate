@@ -1,6 +1,20 @@
+/*
+ * @Description: 时间周期相关的接口
+ * @Author: wch
+ * @email: 1301457114@qq.com
+ * @Date: 2023-07-23 17:51:54
+ * @LastEditors: wch
+ * @LastEditTime: 2023-08-14 14:25:02
+ */
+
+
 import request from "@/utils/request";
 
-//获取所有时间周期
+/**
+ * @description: 获取所有时间周期
+ * @return {*}
+ * @author: wch
+ */
 export function getTimeCycleList(){
 	return request({
 		url: "/timecycle/all",
@@ -8,7 +22,12 @@ export function getTimeCycleList(){
 	});
 }
 
-// 分页查询时间周期
+/**
+ * @description: 按条件获取时间周期
+ * @param {*} data
+ * @return {*}
+ * @author: wch
+ */
 export function findTimeCycle(data){
 	return request({
 		url: "/timecycle/find",
@@ -17,7 +36,26 @@ export function findTimeCycle(data){
 	});
 }
 
-// 添加时间周期
+/**
+ * @description: 获取引用了该时间周期的指标
+ * @param {*} params
+ * @return {*}
+ * @author: wch
+ */
+export function findQuoteIndicators(params) {
+	return request({
+		url: "/timecycle/indicators",
+		method: "get",
+		params: params
+	});
+}
+
+/**
+ * @description: 添加时间周期
+ * @param {*} data
+ * @return {*}
+ * @author: wch
+ */
 export function addTimeCycle(data){
 	return request({
 		url: "/timecycle/add",
@@ -26,7 +64,12 @@ export function addTimeCycle(data){
 	});
 }
 
-// 批量导入时间周期
+/**
+ * @description: 批量添加时间周期
+ * @param {*} data
+ * @return {*}
+ * @author: wch
+ */
 export function addTimeCycleList(data){
 	return request({
 		url: "/timecycle/batch_add",
@@ -35,7 +78,12 @@ export function addTimeCycleList(data){
 	});
 }
 
-// 修改时间周期
+/**
+ * @description: 更新时间周期
+ * @param {*} data
+ * @return {*}
+ * @author: wch
+ */
 export function updateTimeCycle(data){
 	return request({
 		url: "/timecycle/update",

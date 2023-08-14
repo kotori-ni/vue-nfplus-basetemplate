@@ -1,6 +1,20 @@
+/*
+ * @Description: 指标相关的接口
+ * @Author: wch
+ * @email: 1301457114@qq.com
+ * @Date: 2023-07-13 10:28:16
+ * @LastEditors: wch
+ * @LastEditTime: 2023-08-14 14:19:05
+ */
+
+
 import request from "@/utils/request";
 
-//获取所有指标创建者
+/**
+ * @description: 获取所有指标创建者
+ * @return {request}
+ * @author: wch
+ */
 export function getCreatorList(params) {
 	return request({
 		url: "/indicator/creators",
@@ -9,7 +23,12 @@ export function getCreatorList(params) {
 	});
 }
 
-//按条件获取指标
+/**
+ * @description: 按照条件获取指标
+ * @param {data}
+ * @return {request}
+ * @author: wch
+ */
 export function getIndicatorList(data) {
 	return request({
 		url: "/indicator/find",
@@ -19,7 +38,11 @@ export function getIndicatorList(data) {
 	});
 }
 
-//获取浏览量最多的五个指标
+/**
+ * @description: 按浏览量获取指标
+ * @return {request}
+ * @author: wch
+ */
 export function getViewMaxIndicatorList() {
 	return request({
 		url: "/indicator/viewmax",
@@ -27,7 +50,12 @@ export function getViewMaxIndicatorList() {
 	});
 }
 
-//获取用户收藏的指标
+/**
+ * @description: 获取用户收藏的指标
+ * @param {data}
+ * @return {request}
+ * @author: wch
+ */
 export function getFavourIndicatorList(data) {
 	return request({
 		url: "/indicator/favour",
@@ -36,7 +64,12 @@ export function getFavourIndicatorList(data) {
 	});
 }
 
-//获取用户创建的指标
+/**
+ * @description: 获取用户创建的指标
+ * @param {data}
+ * @return {request}
+ * @author: wch
+ */
 export function getCreateIndicatorList(data) {
 	return request({
 		url: "/indicator/creator",
@@ -45,7 +78,11 @@ export function getCreateIndicatorList(data) {
 	});
 }
 
-//获取单个指标的详细信息
+/**
+ * @description: 获取单个指标的详细信息
+ * @return {request}
+ * @author: wch
+ */
 export function getIndicatorDetail(params) {
 	return request({
 		url: "/indicator/one",
@@ -54,7 +91,25 @@ export function getIndicatorDetail(params) {
 	});
 }
 
-//新增指标
+/**
+ * @description: 获取指标血缘树
+ * @return {request}
+ * @author: wch
+ */
+export function getIndicatorTree(params) {
+	return request({
+		url: "/indicator/indicator-tree",
+		method: "get",
+		params: params
+	});
+}
+
+/**
+ * @description: 新增指标
+ * @param {data}
+ * @return {request}
+ * @author: wch
+ */
 export function addIndicator(data) {
 	return request({
 		url: "/indicator/add",
@@ -64,7 +119,11 @@ export function addIndicator(data) {
 	});
 }
 
-//更新指标状态
+/**
+ * @description: 更新指标状态
+ * @return {request}
+ * @author: wch
+ */
 export function changeState(params) {
 	return request({
 		url: "/indicator/update_state",
@@ -73,7 +132,11 @@ export function changeState(params) {
 	});
 }
 
-//更新指标信息
+/**
+ * @description: 更新指标信息
+ * @return {request}
+ * @author: wch
+ */
 export function updateIndicator(data) {
 	return request({
 		url: "/indicator/update",
