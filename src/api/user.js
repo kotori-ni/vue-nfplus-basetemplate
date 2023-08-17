@@ -4,7 +4,7 @@
  * @email: 1301457114@qq.com
  * @Date: 2023-07-13 10:28:16
  * @LastEditors: wch
- * @LastEditTime: 2023-08-14 14:29:15
+ * @LastEditTime: 2023-08-16 09:39:17
  */
 
 import request from "@/utils/request";
@@ -102,7 +102,7 @@ export function addCollection(data) {
 export function deleteCollection(data) {
 	return request({
 		url: "/collection/delete",
-		method: "post",
+		method: "delete",
 		data: data,
 	});
 }

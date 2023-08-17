@@ -4,7 +4,7 @@
  * @email: 1301457114@qq.com
  * @Date: 2023-08-02 10:43:09
  * @LastEditors: wch
- * @LastEditTime: 2023-08-14 15:27:34
+ * @LastEditTime: 2023-08-15 17:19:24
 -->
 
 <template>
@@ -13,7 +13,7 @@
             <upload-excel-component :on-success="handleSuccess" :before-upload="beforeUpload" style="width: 630px;" />
             <div style="display: flex; align-items: flex-end;">
                 <el-button type="primary" @click="handleDownloadExcel" size="medium">下载模板</el-button>
-                <el-button type="primary" @click="handleUpload" size="medium" style="margin-left: 20px;">确认上传</el-button>
+                <el-button type="primary" @click="handleUpload" size="medium" style="margin-left: 20px;" :disabled="tableData.length == 0">确认上传</el-button>
             </div>
         </div>
         <el-table :data="tableData" border highlight-current-row style="width: 100%; margin-top:20px;">
@@ -39,6 +39,8 @@ export default {
             tableHeader: [],
             errorMessage: ""
         }
+    },
+    mounted() {
     },
     methods: {
         beforeUpload(file) {

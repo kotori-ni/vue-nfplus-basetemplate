@@ -4,7 +4,7 @@
  * @email: 1301457114@qq.com
  * @Date: 2023-07-14 10:38:29
  * @LastEditors: wch
- * @LastEditTime: 2023-08-14 14:50:37
+ * @LastEditTime: 2023-08-16 11:17:06
 -->
 
 <template>
@@ -52,7 +52,7 @@ export default {
 				};
 			},
 		},
-		pagesize: {
+		pageSize: {
 			type: Number,
 			default: 10
 		}

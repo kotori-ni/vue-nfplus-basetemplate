@@ -4,7 +4,7 @@
  * @email: 1301457114@qq.com
  * @Date: 2023-07-23 17:49:29
  * @LastEditors: wch
- * @LastEditTime: 2023-08-14 14:13:06
+ * @LastEditTime: 2023-08-15 16:18:31
  */
 
 import request from "@/utils/request";
@@ -93,5 +93,19 @@ export function updateDerivation(data){
 		url: "/derivation/update",
 		method: "post",
 		data: data
+	});
+}
+
+/**
+ * @description: 删除衍生词
+ * @param {params}
+ * @return {*}
+ * @author: wch
+ */
+export function deleteDerivation(params) {
+	return request({
+		url: "/derivation/delete",
+		method: "delete",
+		params: params
 	});
 }

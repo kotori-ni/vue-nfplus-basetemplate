@@ -4,7 +4,7 @@
  * @email: 1301457114@qq.com
  * @Date: 2023-07-13 10:28:16
  * @LastEditors: wch
- * @LastEditTime: 2023-08-14 15:31:01
+ * @LastEditTime: 2023-08-15 16:19:32
 -->
 
 <template>
@@ -58,11 +58,6 @@
 					<span>{{ row.creatorName }}</span>
 				</template>
 			</el-table-column>
-			<el-table-column label="创建时间" prop="createTime" width="180" align="center">
-				<template slot-scope="{row}">
-					<span>{{ row.createTime }}</span>
-				</template>
-			</el-table-column>
 			<el-table-column label="计算口径" prop="calculationCaliber" min-width="200" align="center">
 				<template slot-scope="{row}">
 					<span>{{ row.calculationCaliber }}</span>
@@ -73,10 +68,12 @@
 					<span>{{ row.description }}</span>
 				</template>
 			</el-table-column>
-			<el-table-column label="操作" align="left" width="250" class-name="small-padding fixed-width">
+			<el-table-column label="操作" align="left" width="320" class-name="small-padding fixed-width">
 				<template slot-scope="{row,$index}">
 					<el-button size="mini" @click="handleEdit(row)">编辑</el-button>
 					<el-button size="mini" @click="handleQuote(row)" type="primary">引用详情</el-button>
+					<el-button size="mini" @click="handleDelete(row)" type="danger"
+						:disabled="row.quoteNum > 0">删除</el-button>
 					<el-button v-if="row.isCollect == false" size="mini" @click="handleFavour(row, $index)" type="success">
 						收藏
 					</el-button>
@@ -165,7 +162,7 @@
 </template>
 
 <script>
-import { findDerivation, addDerivation, updateDerivation, findQuoteIndicators } from '@/api/derivation.js';
+import { findDerivation, addDerivation, updateDerivation, findQuoteIndicators, deleteDerivation } from '@/api/derivation.js';
 import { addCollection, deleteCollection } from '@/api/user'
 import waves from '@/directive/waves' // waves directive
 import { parseTime } from '@/utils/index.js'
@@ -368,6 +365,33 @@ export default {
 			});
 		},
 		/**
+		 * @description: 删除衍生词
+		 * @param {*} row
+		 * @return {*}
+		 * @author: wch
+		 */
+		handleDelete(row) {
+			deleteDerivation({ derivationId: row.derivationId }).then(response => {
+				if (response.success) {
+					this.$notify({
+						title: '操作成功',
+						message: response.message,
+						type: 'success',
+						duration: 2000
+					})
+					this.getderivations();
+				}
+				else {
+					this.$notify({
+						title: '操作失败',
+						message: response.message,
+						type: 'error',
+						duration: 2000
+					})
+				}
+			})
+		},
+		/**
 		 * @description: 收藏衍生词
 		 * @param {*} row
 		 * @param {*} index
@@ -514,4 +538,5 @@ export default {
 .el-table td {
 	padding-top: 6px;
 	padding-bottom: 6px;
-}</style>
+}
+</style>

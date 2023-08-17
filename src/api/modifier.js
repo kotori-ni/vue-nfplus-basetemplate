@@ -4,7 +4,7 @@
  * @email: 1301457114@qq.com
  * @Date: 2023-07-23 17:47:20
  * @LastEditors: wch
- * @LastEditTime: 2023-08-14 14:23:46
+ * @LastEditTime: 2023-08-15 17:14:54
  */
 
 
@@ -94,10 +94,11 @@ export function updateModifier(data){
  * @return {*}
  * @author: wch
  */
-export function deleteModifier(data){
+export function deleteModifier(params){
 	return request({
 		url: "/modifier/delete",
-		method: "post",
-		data: data
+		method: "delete",
+		params: params
 	});
 }
+

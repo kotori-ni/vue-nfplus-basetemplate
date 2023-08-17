@@ -4,7 +4,7 @@
  * @email: 1301457114@qq.com
  * @Date: 2023-07-16 16:31:16
  * @LastEditors: wch
- * @LastEditTime: 2023-08-14 14:46:36
+ * @LastEditTime: 2023-08-16 11:15:32
 -->
 
 <template>
@@ -108,7 +108,7 @@
 			</el-table-column>
 		</el-table>
 
-		<pagination v-show="total >= 0" :total="total" :page.sync="childRequestQuery.page" :limit.sync="pagesize"
+		<pagination v-show="total >= 0" :total="total" :page.sync="childRequestQuery.page" :limit.sync="childRequestQuery.pageSize"
 			@pagination="getIndicators" style="height: 65px;" />
 
 		<el-dialog title="导出设定" :visible.sync="dialogVisible" width="30%">
@@ -161,7 +161,7 @@ export default {
 				sortMethod: undefined
 			},
 		},
-		pagesize: {
+		pageSize: {
 			type: Number,
 			default: 10
 		}

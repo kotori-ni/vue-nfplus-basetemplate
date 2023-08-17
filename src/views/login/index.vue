@@ -4,7 +4,7 @@
  * @email: 1301457114@qq.com
  * @Date: 2023-07-13 10:28:16
  * @LastEditors: wch
- * @LastEditTime: 2023-08-14 15:13:24
+ * @LastEditTime: 2023-08-16 15:25:07
 -->
 
 <template>
@@ -83,10 +83,10 @@ export default {
 		}
 		return {
 			loginForm: {
-				username: '',
-				password: '',
-				re_password: '',
-				email: '',
+				username: undefined,
+				password: undefined,
+				re_password: undefined,
+				email: undefined,
 			},
 			loginRules: {
 				username: [{ required: true }],

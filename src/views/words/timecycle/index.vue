@@ -4,7 +4,7 @@
  * @email: 1301457114@qq.com
  * @Date: 2023-07-13 18:10:39
  * @LastEditors: wch
- * @LastEditTime: 2023-08-14 15:37:57
+ * @LastEditTime: 2023-08-16 15:09:04
 -->
 
 <template>
@@ -48,12 +48,12 @@
 					<span>{{ row.index }}</span>
 				</template>
 			</el-table-column>
-			<el-table-column label="时间周期名称" prop="timeCycleName" width="200" align="center">
+			<el-table-column label="时间周期名称" prop="timeCycleName" width="180" align="center">
 				<template slot-scope="{row}">
 					<span>{{ row.timeCycleName }}</span>
 				</template>
 			</el-table-column>
-			<el-table-column label="创建者" width="150" prop="creatorName" align="center">
+			<el-table-column label="创建者" width="100" prop="creatorName" align="center">
 				<template slot-scope="{row}">
 					<span>{{ row.creatorName }}</span>
 				</template>
@@ -68,10 +68,12 @@
 					<span>{{ row.description }}</span>
 				</template>
 			</el-table-column>
-			<el-table-column label="操作" align="left" width="250" class-name="small-padding fixed-width">
+			<el-table-column label="操作" align="left" width="320" class-name="small-padding fixed-width">
 				<template slot-scope="{row,$index}">
 					<el-button size="mini" @click="handleEdit(row)">编辑</el-button>
 					<el-button size="mini" @click="handleQuote(row)" type="primary">引用详情</el-button>
+					<el-button size="mini" @click="handleDelete(row)" type="danger"
+						:disabled="row.quoteNum > 0">删除</el-button>
 					<el-button v-if="row.isCollect == false" size="mini" @click="handleFavour(row, $index)" type="success">
 						收藏
 					</el-button>
@@ -152,7 +154,7 @@
 </template>
 
 <script>
-import { findTimeCycle, addTimeCycle, updateTimeCycle, findQuoteIndicators } from '@/api/timecycle.js';
+import { findTimeCycle, addTimeCycle, updateTimeCycle, findQuoteIndicators, deleteTimeCycle } from '@/api/timecycle.js';
 import { addCollection, deleteCollection } from '@/api/user'
 import waves from '@/directive/waves' // waves directive
 import { parseTime } from '@/utils/index.js'
@@ -346,6 +348,33 @@ export default {
 					return false;
 				}
 			});
+		},
+		/**
+		 * @description: 删除时间周期
+		 * @param {*} row
+		 * @return {*}
+		 * @author: wch
+		 */
+		handleDelete(row) {
+			deleteTimeCycle({ timeCycleId: row.timeCycleId }).then(response => {
+				if (response.success) {
+					this.$notify({
+						title: '操作成功',
+						message: response.message,
+						type: 'success',
+						duration: 2000
+					})
+					this.getTimeCycles();
+				}
+				else {
+					this.$notify({
+						title: '操作失败',
+						message: response.message,
+						type: 'error',
+						duration: 2000
+					})
+				}
+			})
 		},
 		/**
 		 * @description: 收藏时间周期

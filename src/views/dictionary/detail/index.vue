@@ -4,7 +4,7 @@
  * @email: 1301457114@qq.com
  * @Date: 2023-08-02 21:06:36
  * @LastEditors: wch
- * @LastEditTime: 2023-08-14 15:04:31
+ * @LastEditTime: 2023-08-15 15:18:19
 -->
 
 <template>
@@ -41,6 +41,7 @@
                     <el-button v-if="indicator.isCollect == true" icon="el-icon-star-on" type="warning" size="mini"
                         @click="handleCancleFavour()" plain>已收藏</el-button>
                     <el-button type="primary" icon="el-icon-edit" size="mini" @click="handleEdit()">编辑</el-button>
+                    <el-button type="danger" icon="el-icon-delete" size="mini" @click="handelDelete" :disabled="indicator.quoteNum > 0">删除</el-button>
                 </div>
             </div>
         </div>
@@ -119,7 +120,7 @@
 
 <script>
 import svgTable from './components/svg-table.vue';
-import { getIndicatorDetail } from '@/api/dictionary';
+import { getIndicatorDetail, deleteIndicator } from '@/api/dictionary';
 import { getVersionList } from '@/api/version';
 import { parseTime } from '@/utils';
 import { addCollection, deleteCollection } from '@/api/user'
@@ -270,6 +271,27 @@ export default {
                         type: 'success',
                         duration: 2000
                     })
+                }
+                else {
+                    this.$notify({
+                        title: '操作失败',
+                        message: response.message,
+                        type: 'error',
+                        duration: 2000
+                    })
+                }
+            })
+        },
+        handelDelete(){
+            deleteIndicator({ indicatorId: this.indicatorId }).then(response => {
+                if (response.success) {
+                    this.$notify({
+                        title: '操作成功',
+                        message: response.message,
+                        type: 'success',
+                        duration: 2000
+                    })
+                    this.$router.back();
                 }
                 else {
                     this.$notify({

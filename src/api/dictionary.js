@@ -4,7 +4,7 @@
  * @email: 1301457114@qq.com
  * @Date: 2023-07-13 10:28:16
  * @LastEditors: wch
- * @LastEditTime: 2023-08-14 14:19:05
+ * @LastEditTime: 2023-08-16 11:09:07
  */
 
 
@@ -72,7 +72,7 @@ export function getFavourIndicatorList(data) {
  */
 export function getCreateIndicatorList(data) {
 	return request({
-		url: "/indicator/creator",
+		url: "/indicator/create",
 		method: "post",
 		data: data,
 	});
@@ -143,5 +143,18 @@ export function updateIndicator(data) {
 		method: "post",
 		headers: { 'Content-Type': 'application/json' },
 		data: data
+	});
+}
+
+/**
+ * @description: 删除指标
+ * @return {*}
+ * @author: wch
+ */
+export function deleteIndicator(param) {
+	return request({
+		url: "/indicator/delete",
+		method: "delete",
+		params: param
 	});
 }

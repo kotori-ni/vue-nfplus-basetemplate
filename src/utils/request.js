@@ -1,3 +1,11 @@
+/*
+ * @Description: 
+ * @Author: wch
+ * @email: 1301457114@qq.com
+ * @Date: 2023-07-13 10:28:16
+ * @LastEditors: wch
+ * @LastEditTime: 2023-08-15 15:54:57
+ */
 import axios from 'axios'
 import { MessageBox, Message } from 'element-ui'
 import store from '@/store'

@@ -4,7 +4,7 @@
  * @email: 1301457114@qq.com
  * @Date: 2023-07-23 17:51:54
  * @LastEditors: wch
- * @LastEditTime: 2023-08-14 14:25:02
+ * @LastEditTime: 2023-08-15 15:44:47
  */
 
 
@@ -89,5 +89,19 @@ export function updateTimeCycle(data){
 		url: "/timecycle/update",
 		method: "post",
 		data: data
+	});
+}
+
+/**
+ * @description: 删除时间周期
+ * @param {*} params 
+ * @return {*}
+ * @author: wch
+ */
+export function deleteTimeCycle(params){
+	return request({
+		url: "/timecycle/delete",
+		method: "delete",
+		params: params
 	});
 }
