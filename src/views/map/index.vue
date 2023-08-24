@@ -4,7 +4,7 @@
  * @email: 1301457114@qq.com
  * @Date: 2023-07-13 10:28:16
  * @LastEditors: wch
- * @LastEditTime: 2023-08-14 14:04:00
+ * @LastEditTime: 2023-08-24 12:39:47
 -->
 
 <template>
@@ -12,7 +12,7 @@
 		<div class="title_map">
 			<h3 style="font-size: 26px; margin-top: 15px; margin-bottom: 20px;">指标地图</h3>
 			<div class="search">
-				<el-input v-model="searchKeyword" clearable placeholder="输入指标名称搜索" style="width: 40%;"></el-input>
+				<el-input v-model="searchKeyword" clearable placeholder="输入指标名称搜索" @keyup.enter.native="handleSearch" style="width: 40%;"></el-input>
 				<el-button type="primary" icon="el-icon-search" @click="handleSearch">搜索</el-button>
 			</div>
 		</div>
@@ -32,7 +32,7 @@
 					<div slot="header" class="clearfix">
 						<span style="width: 85%;"><i class="el-icon-star-on"
 								style="padding-right: 5px; color: gold; font-size: 18px;"></i>我收藏的</span>
-						<el-button style="float: right; padding: 3px 0" type="text" @click="handleView()">更多<i
+						<el-button style="float: right; padding: 3px 0" type="text" @click="handleUserDraft()">更多<i
 								class="el-icon-arrow-right el-icon--right"></i></el-button>
 					</div>
 					<el-empty v-if="favourIndicators.length == 0" :image-size="80"></el-empty>

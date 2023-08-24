@@ -4,7 +4,7 @@
  * @email: 1301457114@qq.com
  * @Date: 2023-08-02 10:43:09
  * @LastEditors: wch
- * @LastEditTime: 2023-08-15 17:19:24
+ * @LastEditTime: 2023-08-24 10:46:52
 -->
 
 <template>
@@ -62,7 +62,7 @@ export default {
             if (this.type == "derivation")
                 this.tableHeader = [{id: "derivationName", label: "衍生词名称"}, {id: "calculationCaliber", label: "计算口径"}, {id: "description", label: "描述"}]
             else if (this.type == "modifier")
-                this.tableHeader = [{id: "modifierName", label: "修饰词名称"}, {id: "modifierValues", label: "字段枚举"}, {id: "description", label: "描述"}]
+                this.tableHeader = [{id: "modifierName", label: "修饰词名称"}, {id: "modifierValueNames", label: "字段枚举"}, {id: "description", label: "描述"}]
             else if (this.type == "timeCycle")
                 this.tableHeader = [{id: "timeCycleName", label: "时间周期名称"}, {id: "description", label: "描述"}]
         },
@@ -71,7 +71,7 @@ export default {
 				if (this.type == "derivation")
                     this.tHeader = ["derivationName", "calculationCaliber", "description"]
                 else if (this.type == "modifier")
-                    this.tHeader = ["modifierName", "modifierValues", "description"]
+                    this.tHeader = ["modifierName", "modifierValueNames", "description"]
                 else if (this.type == "timeCycle")
                     this.tHeader = ["timeCycleName", "description"]
 
@@ -122,7 +122,7 @@ export default {
             }
             else if (this.type == "modifier") {
                 for (let  i = 0; i < this.tableData.length; i++){
-                    this.tableData[i].modifierValues = this.tableData[i].modifierValues.split(",")
+                    this.tableData[i].modifierValueNames = this.tableData[i].modifierValueNames.split(",")
                 }
                 addModifierList(this.tableData).then(response => {
                     if (response.success) {
@@ -169,7 +169,11 @@ export default {
                     console.log(error);
                 });
             }
-        }
+        },
+        resetTable() {
+            this.tableData = [];
+            this.tableHeader = [];
+        },
     }
 }
 </script>

@@ -4,7 +4,7 @@
  * @email: 1301457114@qq.com
  * @Date: 2023-07-16 16:31:16
  * @LastEditors: wch
- * @LastEditTime: 2023-08-16 11:15:32
+ * @LastEditTime: 2023-08-24 11:14:12
 -->
 
 <template>
@@ -83,7 +83,7 @@
 					<span>{{ row.creatorName }}</span>
 				</template>
 			</el-table-column>
-			<el-table-column label="操作" align="center" width="225" class-name="small-padding fixed-width">
+			<el-table-column label="操作" align="left" width="225" class-name="small-padding fixed-width">
 				<template slot-scope="{row,$index}">
 					<el-button size="mini" @click.native.stop="handleEdit(row)">
 						编辑
@@ -431,8 +431,8 @@ export default {
 			return "border-color: #ddd;"
 		},
 		tableHeaderCellStyle() {
-			return "border-color: #ddd;"
-		}
+			return "border-color: #ddd; text-align: center;"
+		},
 	},
 }
 </script>

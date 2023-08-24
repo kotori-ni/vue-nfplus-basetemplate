@@ -4,7 +4,7 @@
  * @email: 1301457114@qq.com
  * @Date: 2023-08-08 14:44:09
  * @LastEditors: wch
- * @LastEditTime: 2023-08-14 15:01:39
+ * @LastEditTime: 2023-08-17 17:14:18
 -->
 
 <template>
@@ -134,7 +134,7 @@ export default {
                 const node = ev.item; // 被点击的节点元素
                 console.log(node)
                 this.$router.replace({ path: '/indicator/dictionary/detail', query: { indicatorId: node._cfg.id } })
-                setTimeout(function () { window.location.reload(); }, 10);
+                setTimeout(function () { window.location.reload(); }, 15);
             });
 
             const edges = graph.getEdges();
